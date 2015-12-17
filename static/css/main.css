@@ -1,0 +1,240 @@
+body, ol, ul {
+	margin: 0; padding: 0;
+}
+
+#master-container {
+	position:absolute; top:0; left: 0;
+	background-color: #444;
+	width: 100%; height: 100%;
+}
+#top-bar {
+	width: 100%; padding: 10px 180px 0px 18px;
+}
+
+#logo {
+	max-height: 54px; max-width: 230px;
+	margin: 0px 0 0 0;
+}
+
+.control-button {
+	float: right;
+	margin: 12px 40px 0px -27px;
+	width: 40px; height: 40px;
+	cursor: pointer;
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+  screen width arrangement
+	1. tabs   2. content div   3. sensors div
+| tabs 150px |-5- content-div 100% -5-| sensors-div 100px -5-| 10px |
+*/
+
+#tabs-div {
+  position:absolute; top:80px; left: 0;
+	width: 150px;
+}
+#content-wrapper-div {
+  position:absolute;
+	top:80px; bottom:10px; left:150px; right:115px;
+	background-color: #f2f2f2 ;
+}
+#sensors-div {
+	position: absolute;
+	top: 80px; bottom: 10px; right: 10px;
+	width: 100px;
+	background-color: #F8EA46;
+	border-top: 5px solid #f2f2f2;
+	border-right: 5px solid #f2f2f2;
+	border-bottom: 5px solid #f2f2f2;
+}
+/* end of main screen * * * * * * * * * * * * * * * * * * * * * * * * */ 
+
+
+/* main content */
+.content-div {
+	position: absolute; 
+	top: 5px; left: 5px; bottom: 5px; right: 5px;
+	visibility: hidden;
+}
+#blockly-editor-div {
+	font-family: "Nunito", sans-serif;
+}
+#ace-editor-div { 
+	font-size: 14px;
+	border: 1px solid #ddd;
+}
+#dashboard-div { 
+	border: 1px solid #ddd;
+	background-color: #E2BF14;
+	overflow-x: scroll;
+}
+#camera-div {
+	border: 1px solid #ddd;
+	background-color: deepskyblue;
+}
+
+/* TABS */
+#tabs-div ul {
+	list-style: none;
+	text-align: center;
+	width: 100%;
+}
+#tabs-div ul li {
+	margin-bottom: 5px;
+	height: 120px;
+	cursor: pointer;
+}
+/* Sensors */
+#sensors-div ul {
+	list-style: none;
+	text-align: center;
+	width: 100%;
+}
+#sensors-div ul li {
+	margin-bottom: 5px;
+	height: 80px;
+	cursor: pointer;
+}
+#sensors-div ul li img {
+	max-height: 80%; max-width: 80%;
+	/* vertical align see: http://zerosixthree.se/vertical-align-anything-with-just-3-lines-of-css */
+	position: relative; top: 50%; transform: translateY(-50%);
+}
+.sensor-selected {}
+
+
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Color picker: http://www.w3schools.com/tags/ref_colorpicker.asp
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ 
+.tab-unselected {
+	background-color: #444; /*#aaa;*/
+	/*border-left: 8px solid #64411B;*/
+	border-right: 5px solid #444;
+} 
+/* Unselected colors : 20% on the light/dark scale */
+ .tab0#blockly-editor {
+	border-left: 8px solid #991f00 ; /*#660000; #64411B;*/
+}
+.tab0#ace-editor {
+	border-left: 8px solid #008800;
+}
+.tab0#dashboard {
+	border-left: 8px solid #008888;
+}
+.tab0#camera {
+	border-left: 8px solid #990073 ;
+}
+
+/* Selected colors : 40% on the scale */
+.tab-hover#blockly-editor {
+  border-left: 8px solid #ff8080  ; /*darkorange;*/  
+}
+.tab-hover#ace-editor {
+  border-left: 8px solid #66cc00;  
+}
+.tab-hover#dashboard {
+  border-left: 8px solid #00e5e6;  
+}
+.tab-hover#camera {
+  border-left: 8px solid #e600e5;  
+}
+
+/* hilight background: 75% on the scale */
+.tab1#blockly-editor {
+	background-color: #f2f2f2 ;
+	}
+.blockly-editor#content-wrapper-div {
+	/*background: linear-gradient(90deg, #f2f2f2, #ffbf80 30%, #ffbf80 );*/
+}
+/**/
+.tab1#ace-editor {
+	background-color: #f2f2f2 ;
+}
+.ace-editor#content-wrapper-div {
+	/*background: linear-gradient(90deg, #f2f2f2, #bbff99 30%, #bbff99 );*/
+}
+/**/
+.tab1#dashboard {
+	background-color: #f2f2f2 ;
+}
+.dashboard#content-wrapper-div {
+}
+/**/
+.tab1#camera {
+	background-color: #f2f2f2 ;
+}
+.camera#content-wrapper-div {
+}
+
+
+/* tab icons */
+#tabs-div ul li img {
+	max-height: 80%; max-width: 80%;
+	/* vertical align see: http://zerosixthree.se/vertical-align-anything-with-just-3-lines-of-css */
+	position: relative; top: 50%; transform: translateY(-50%);
+}
+img.img1 {
+	opacity: 1.0;
+}
+img.img0 {
+	opacity: 0.5;
+}
+
+/*
+
+#tab-container ul li.selected {
+   border-right: none;
+   background-color: #fff;
+   border-left: 8px solid #006699;
+}
+*/
+
+
+/* Old stuff */
+#logo1 {
+	font-family: '';
+	font-size: 32px;
+	font-weight: bold;
+	color:orange;
+	margin: 
+}
+
+
+/* hilight background: 75% on the scale */
+/*
+.tab1#blockly-editor {
+	background: linear-gradient(90deg, white, white 30%, #ffbf80 );
+	border-right: 5px solid #ffbf80;
+}
+.blockly-editor#content-wrapper-div {
+	background-color: #ffbf80;
+}
+
+.tab1#ace-editor {
+	background: linear-gradient(90deg, white, white 30%, #bfff80  );
+	border-right: 5px solid #bfff80  ;
+}
+.ace-editor#content-wrapper-div {
+	background-color: #bfff80 ;
+}
+
+.tab1#dashboard {
+	background: linear-gradient(90deg, white, white 30%, #80ffff );
+	border-right: 5px solid #80ffff;
+}
+.dashboard#content-wrapper-div {
+	background-color: #80ffff;
+}
+
+.tab1#camera {
+	background: linear-gradient(90deg, white, white 30%, #d580ff  );
+	border-right: 5px solid #d580ff ;
+}
+.camera#content-wrapper-div {
+	background-color: #d580ff;
+}
+*/

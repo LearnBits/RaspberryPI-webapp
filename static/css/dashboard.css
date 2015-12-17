@@ -1,0 +1,23 @@
+#sensors-table {
+	border-collapse: collapse;
+}
+
+#sensors-table td {
+	padding: 15px;
+	vertical-align: top;
+}
+#sensors-table .label-div {
+	color: aliceblue;
+	padding-top: 10px;
+	font-family: "Nunito", sans-serif;
+	font-size: 20pt;
+}
+#sensors-table .gauge-div {
+	background-color: #8a2b61;
+	max-height: 200px;
+}
+
+#sensors-table .graph-canvas {
+	width:500px;
+	height:200px;
+}

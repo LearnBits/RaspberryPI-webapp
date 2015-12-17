@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>ACE in Action</title>
+<style type="text/css" media="screen">
+  #topbar { position: absolute; top: 0; right: 0; bottom: 50px; left: 0; }
+  #editor { position: absolute; top: 0; right: 0; bottom: 0; left: 0; }
+</style>
+</head>
+<body>
+
+    
+<!--script src="/ace-builds/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+<script>
+var editor = ace.edit("editor");
+editor.setTheme("ace/theme/monokai");
+editor.getSession().setMode("ace/mode/javascript");
+</script-->
+</body>
+</html>
+
+<html>
+<head>
+<script src="/static/jquery-2.1.4.min.js"></script>
+<script type="text/javascript">
+function upload() {
+  var p1 = $('#tp1').val();
+  console.log('program = ' + p1);
+  $.ajax({
+    method: "POST",
+    url: "/upload",
+    data: { 
+      author: 'david',
+      date: new Date(),
+      program: p1 //,
+      //events: JSON.stringify(['sensor1', 'sensor2'])
+  }})
+  .done(function( msg ) {
+    var s1 = 'Program uploaded succecssfully'
+    var s2 = 'Error uplading program'
+    console.log( msg == 'OK' ? s1 : s2)
+  });
+}
+
+$( document ).ready(function() {  
+  $('#tp1').text($('#p1').text().trim()+'\n');
+});
+</script>
+
+<script type="python code" id="p1">
+s = glob.sandbox.get_sample()
+print  '@@@@@ from user program @@@@  '
+print "%s %s %d" % (s.sensor, s.value, s.count)
+print '@@@@@'
+</script>
+</head>
+
+<body style='font-family:Menlo;'>
+<h1>Upload program</h1>
+<textarea id='tp1' rows=15 cols=40 style='font-family:Menlo; font-size:14px;'>
+</textarea>
+<br>
+<button onclick='upload()'>upload</button>
+</body>
+</html>

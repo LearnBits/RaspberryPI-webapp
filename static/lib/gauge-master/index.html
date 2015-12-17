@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Gauge demo</title>
+    <script src="js/vendor/jquery-1.11.2.js"></script>
+    <!--<script src="js/gauge.min.js"></script>-->
+    <!--<script src="js/gauge-plugin.min.js"></script>-->
+    <script src="js/gauge.js"></script>
+    <script src="js/gauge-plugin.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
+    <link rel="stylesheet" type="text/css" href="css/gauge.css" />
+</head>
+<body>
+<div id="container"></div>
+<div id="container1"></div>
+<script>
+    /* EXAMPLES */
+    /* Create gauge native */
+    var gauge = new Gauge(document.getElementById("container"), {value: 2, tickLabel: {interval: 60 }});
+    var gauge1 = new Gauge(document.getElementById("container1"), {tickLabel: {interval: 40 }});
+    var gauge2 = new Gauge(document.getElementById("container"), {value: 2, tickLabel: {interval: 60 }});
+    gauge.setValue(2.5);
+
+    /* Create gauge with jQuery plugin */
+//     $("#container").gauge({value: 5.5});
+</script>
+</body>
+</html>

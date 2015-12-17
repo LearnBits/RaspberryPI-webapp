@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="lib/jquery-2.1.4.min.js"></script>
+<script src="lib/smoothie.js"></script>
+<script src="lib/gauge-master/gauge-dk.js"></script>
+<script src="js/dashboard.js"></script>
+
+<link rel="stylesheet" type="text/css" href="lib/gauge-master/css/gauge.css" />
+<link rel="stylesheet" type="text/css" href="css/dashboard.css" />
+<link href='https://fonts.googleapis.com/css?family=Nunito:300' rel='stylesheet' type='text/css'>
+
+</head>
+<body style='background-color: #000;'> 
+	<table id='dashboard-table'><tr>
+		<td><div class='sensor-div'>Accelerometer</div></td>
+		<td><div class='gauge-div'></div></td>
+		<!-- 
+				BUG in smoothie: 
+				MUST provide width and height of the canvas here
+		 -->
+		<td><canvas class="graph-canvas" width="500" height="200"></canvas></td>
+	</tr></table>
+    
+		
+	</div>
+</body>
+</html>

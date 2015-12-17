@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<title>Gauge demo</title>
+<script src="lib/smoothie.js"></script>
+<script src="lib/gauge-master/gaugeDK.js"></script>
+<link rel="stylesheet" type="text/css" href="lib/gauge-master/css/gauge.css" />
+</head>
+<body style='background-color:darkgrey'>
+<table border=0>
+	<tr><td><div id="gauge-div"></div></td><td><div id="gauge-div1"></div></td></tr>
+
+<script>
+//var gauge = new Gauge(document.getElementById("gauge-div"), {value: 2, tickLabel: {interval: 60 }});
+//$("#gauge-div").gauge({value: 2, tickLabel: {interval: 60 }});
+	//$("#gauge-div").gauge({
+	var gauge = new Gauge(document.getElementById("gauge-div"), {
+			value: 3.23,                           // default value
+			range: [0, 100],                      // range
+			labels: {0:'0',5:'', 10:'10',15:'', 20:'20',25:'', 30:'30',40:'40',50:'50',60:'60',70:'70',80:'80',90:'90',100:'100'},
+			zones: [                              // color zones
+					{   length_quota: 0.6,
+							color: '#8888FF'
+					},
+					{   length_quota: 0.3,
+							color: '#FFFF00'
+					},
+					{   length_quota: 0.1,
+							color: '#FF0000'
+					}],
+			dial_indicator: {                     // dial indicator drawing parameters
+					cx: 300,cy: 300, r: 200,
+					sAngle: 210, eAngle: -30
+				//sAngle: 180, eAngle: 0
+			},
+			tickLabel: {                          // tick label drawing parameters
+					interval: 45                      // interval between dial indicator and tick label
+			},
+			tickLine: {                           // tick line drawing parameters
+					interval: 15,                     // interval between dial indicator and tick line
+					length: 20                        // length of tick line
+			},
+			meter_needle: {                       // meter needle drawing parameters
+					circle_r: 30,
+					interval: 40                      // interval between dial indicator and end of meter needle
+			}});
+		
+		var gaugeValue = 0.0;
+		var gaugeDir = 1;
+		setInterval(function() {
+			gaugeValue += gaugeDir ;
+			gauge.setValue(gaugeValue);
+			console.log(gaugeValue);
+			if(gaugeValue >= 10) gaugeDir = -1;
+			if(gaugeValue <= 0) gaugeDir = 1;
+		}, 200);
+	 //$("#gauge-div").gauge('setvalue', 35.5);
+	
+	//var gauge1 = new Gauge(document.getElementById("gauge-div1"), {value:35, tickLabel: {interval: 40 }});
+    //var gauge2 = new //Gauge(document.getElementById("container"), {value: 2, tickLabel: {interval: 60 }});
+    //gauge.setValue(2.5);
+
+    /* Create gauge with jQuery plugin */
+//     $("#container").gauge({value: 5.5});
+</script>
+</body>
+</html>
