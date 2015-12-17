@@ -2,6 +2,7 @@ from __future__ import with_statement
 from threading  import Thread, Event, RLock
 from time       import sleep
 from glob import glob
+import json
 
 class LBSamplingEvent:
   #
@@ -15,7 +16,7 @@ class LBSamplingEvent:
 		self.event.set()
   #
 	def get(self):
-		self.event.wait(3.0) # 3 secs timeout
+		self.event.wait()
 		self.event.clear()
 		return self.result
 #...
@@ -29,8 +30,12 @@ class LBSandbox:
 		self.event = LBSamplingEvent()
 		self.rlock = RLock()
 	#
-	def fire_event(self, sample):
-		self.event.set(sample)
+	def fire_event(self, event, data=None):
+		if self.running[self.pid]:
+			if event == 'SAMPLING':
+				self.event.set(data)
+			elif event == 'SHUTDOWN':
+				self.event.set(None)
   #
 	def get_sample(self):
 		return self.event.get()

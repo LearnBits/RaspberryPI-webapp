@@ -5,7 +5,7 @@ from serialport import LBSerialRequest
 from dispatcher import LBDispatcher
 from sandbox    import LBSandbox
 from glob       import glob
-import json, sys, flask.ext.cors
+import time, flask.ext.cors
 
 #--------------------
 
@@ -58,9 +58,9 @@ def sample():
 			print 'Sending SSE sample %s' % json_sampling_msg
 			yield 'data: %s\n\n' % json_sampling_msg
 		#
-		print 'streaming .... done'
+		yield 'event: shutdown\n' + 'data: {"time": "now"}\n\n'
+		print 'Data streaming thread .... done'
 	#
-	print 'Got sample request, start streaming'
 	return Response(gen(), mimetype='text/event-stream')
 
 # Sandbox requests
@@ -78,30 +78,58 @@ def stop():
 	glob.sandbox.stop_program()
 	return HTTP_OK
 
+@app.route('/shutdown', methods=['POST'])
+def shutdown():
+	shutdown_func = request.environ.get('werkzeug.server.shutdown')
+	if shutdown_func is None: raise RuntimeError('Not running with the Werkzeug Server')
+	shutdown_func()
+	print 'Web app thread ... done'
+	return 'Shutting down Learnbits server...'
 
-###############################################
-import random, time
-def dummy():
-	while glob.app_is_running:
-		time.sleep(2+0.005 + random.random()*1.5)
-		print('%%%%%%%%%%%%%%%%%%%%%%%%% dummy')
-##############################################
+
+def start_web_app():
+	app.run(host='0.0.0.0', port=8080, threaded=True,
+					debug=True, use_evalex=False, use_reloader=False)
+	
+def stop_web_app():
+	from requests import post
+	from threading import Timer	
+	Timer(3.0, post, args=('http://localhost:8080/shutdown',)).start()
 
 # main starts here
 if __name__ == '__main__':
-  #
-	glob.serial.open()
-	Thread(target=glob.serial.forever_loop).start()
-	
+
+	'''
+		Map of all running threads
+		1) serial port thread
+		2) web app main threads + request threads
+		3) sandbox thread (when running)
+		4) main thread - dormant
+	'''
+
+	#
+	# Run serial port
+	serial_port_thread = Thread(target=glob.serial.forever_loop)
+	serial_port_thread.start()
 	
 	#
-	# Run Flask server
-	app.run(host='0.0.0.0', port=8080, threaded=True,
-					debug=True, use_evalex=False, use_reloader=False)
-	#
-	# Gracefully terminate all running threads (after hitting Ctrl-C) 
-	glob.app_is_running = False
-	print 'Exiting learnbit server....'
-	sys.exit(0)
+	# Run web app
+	web_app_thread = Thread(target=start_web_app)
+	web_app_thread.start()
 
-
+	try:
+		while glob.app_is_running:
+			time.sleep(1.0)
+	except Exception as e:
+		print 'Got exception %s' % str(e)
+	finally:
+		#
+		# Gracefully terminate all running threads (after hitting Ctrl-C) 
+		print '\nServer shutdown, exiting in 5 secs ...'
+		glob.app_is_running = False
+		glob.sandbox.fire_event('SHUTDOWN')
+		# Shutdown web app by sending a 		
+		stop_web_app()
+		time.sleep(5.0)
+		from sys import exit
+		exit(0)

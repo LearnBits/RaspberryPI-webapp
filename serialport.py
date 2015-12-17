@@ -6,10 +6,10 @@ from dispatcher import LBDispatcher
 from sandbox    import LBSandbox
 import sys, time, platform, json
 
-#--------------------
 
 def debug(s):
 	print '>>>>>>>>>> ' + s
+
 
 class LBSerialPort:
   #
@@ -28,7 +28,7 @@ class LBSerialPort:
 	  #
 		try:
 			(p, b) = serial_port_params()
-			self.serial = Serial(port=p, baudrate=b)
+			self.serial = Serial(port=p, baudrate=b, timeout=5)
 		except Exception as e:
 			debug('UART open failed: Exception ' + str(e))
 			sys.exit(1)
@@ -42,24 +42,28 @@ class LBSerialPort:
 	#	
 	def forever_loop(self):
 		#
-		debug_count = 0;
+		def dispatch(json_msg): 
+			msg = json.loads(json_msg)
+			#
+			if msg.has_key('SENSOR_ID'):
+				glob.sandbox.fire_event('SAMPLING', msg)
+				glob.dispatcher.fire_event(json_msg)
+			#
+			elif msg.has_key('ID'):
+				queue = LBSerialRequest.store[msg['ID']]
+				queue.put(json_msg)
+		#
+		# open serial port
+		self.open()
+		#
 		while glob.app_is_running:
 			try:
-				json_msg = self.serial.readline().strip()
-				msg = json.loads(json_msg)
-				debug_count += 1
-				#
-				if msg.has_key('SENSOR_ID'):
-					glob.sandbox.fire_event(msg)
-					glob.dispatcher.fire_event(json_msg)
-					if debug_count % 15 == 0: debug('Streaming from UART: %s' % json_msg)
-				#
-				elif msg.has_key('ID'):
-					queue = LBSerialRequest.store[msg['ID']]
-					queue.put(json_msg)
+				s = self.serial.readline()
+				if len(s) > 0: dispatch(s.strip())
 				#
 			except Exception as e:
-				debug('UART: Exception ' + str(e) + ' ' + str(type(e)))
+				debug('UART: Exception %s, (%s)' % (str(e), str(type(e))))
+		print 'Serial port thread ... done'
 #...
 
 ''' ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
@@ -102,7 +106,6 @@ class LBSerialRequest:
 		except Exception as e:
 			self.resp = 'Request %d has timed out, %s' %  (self.id, str(e))
 			print self.resp
-			self
 		finally:
 			del LBSerialRequest.store[self.id]
 			return self.resp

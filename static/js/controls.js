@@ -102,8 +102,8 @@ $('[class="control-button"]').each(function() {
 			$(this).attr('src', $(this).data('src') + '1.png');
 		});
 	});
-	//$('#play-button').click(runProgram);
-	//$('#stop-button').click(stopProgram);
+	$('#play-button').click(runProgram);
+	$('#stop-button').click(stopProgram);
 	$('#sample-button').click(toggleSampling);
 }
 

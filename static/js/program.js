@@ -1,7 +1,7 @@
 function runProgram() {
 	var program = aceEditor.getValue();
 	console.log('run program ' + program);
-  $.post('/run', { 
+  $.post('/run_program', { 
 	    author: 'david',
 	    date: new Date(),
 	    program: program,
@@ -10,13 +10,13 @@ function runProgram() {
 		if(msg == 'OK' )
 			setButtonState('stop-button', 'on');
 	  var s1 = 'Program uploaded successfully'
-		var s2 = 'Error uplading program'
+		var s2 = 'Error uploading program'
 		console.log( msg == 'OK' ? s1 : s2)
 	});
 }
 
 function stopProgram() {
-	$.get('/stop').done(function (msg) {
+	$.get('/stop_program').done(function (msg) {
 		if(msg == 'OK' )
 			setButtonState('stop-button', 'off');
 		console.log( msg == 'OK' ? 'OK' : 'Error could not issue a stop command');

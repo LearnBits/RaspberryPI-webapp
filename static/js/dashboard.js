@@ -149,6 +149,11 @@ function startSampling() {
 		if(av > 0) av /= count;
 		dashboard[sample.SENSOR_ID].setValue(Math.round(av));
 	}
+	sse.addEventListener('shutdown', function(e) {
+		sse.close();
+		sse = null;
+		console.log('Server shutdown, closing connections');
+	});
 	sse.onerror = function(e) {
 		console.log(`Eventsource failed: ${e.type}`);
 	}
