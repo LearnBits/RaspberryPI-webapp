@@ -1,8 +1,8 @@
 from serial     import Serial, SerialException 
 from threading  import Lock
 from Queue      import Queue
-from glob       import glob
-from dispatcher import LBDispatcher
+from glob       import g
+#from dispatcher import LBDispatcher
 from sandbox    import LBSandbox
 import sys, time, platform, json
 
@@ -10,76 +10,86 @@ import sys, time, platform, json
 def debug(s):
 	print '>>>>>>>>>> ' + s
 
-
 class LBSerialPort:
-  #
+	""" 
+		Handles full duplex communication with the serial prot
+		Support multiple platforms
+		Pattern = singleton
+	"""
+  
+	@staticmethod
+	def get_params():
+		if platform.system() == 'Darwin':
+			# Mac OS X
+			return ('/dev/cu.usbmodem1421', 115200) 
+		else:
+			# Raspberry PI
+			return ('/dev/ttyAMA0', 57600)
+	#
 	def __init__(self):
 		self.serial = None
+		self.port, self.baudrate = LBSerialPort.get_params()
+		self.is_open = False
   #
 	def open(self):
-		#
-		def serial_port_params():
-			if platform.system() == 'Darwin':
-				# Mac OS X
-				return ('/dev/cu.usbmodem1421', 115200) 
-			else:
-				# Raspberry PI
-				return ('/dev/ttyAMA0', 57600)
-	  #
 		try:
-			(p, b) = serial_port_params()
-			self.serial = Serial(port=p, baudrate=b, timeout=5)
-		except Exception as e:
-			debug('UART open failed: Exception ' + str(e))
-			sys.exit(1)
+			self.serial = Serial(port=self.port, baudrate=self.baudrate, timeout=5)
+			#self.serial.flushInput()
+			#self.serial.flushOutput()
+			self.is_open = True
+			debug('Serial port is open')
+			#time.sleep(0.5)
+		except OSError as e:
+			debug('Cannot open the serial port: %s' % (str(e)))
+			debug('Retrying in 5 sec...')
+			time.sleep(5.0)
 	#
 	def close(self):
-		self.serial.close()
+		try:
+			self.serial.close()
+		except SerialException as e:
+			debug('UART close failure: %s, (%s)' % (str(e), str(type(e))))
+		finally:
+			self.serial = None
+			self.is_open = False
 	#
-	def send(self, cmd):
+	def write(self, cmd):
 		json_msg = 'json:' + json.dumps(cmd) + '\n'
+		if not self.is_open:
+			self.open()
 		self.serial.write(json_msg)
+		print 'Send serial_cmd %s' % json_msg
+
 	#	
 	def forever_loop(self):
 		#
 		def dispatch(json_msg): 
 			msg = json.loads(json_msg)
-			#
-			if msg.has_key('SENSOR_ID'):
-				glob.sandbox.fire_event('SAMPLING', msg)
-				glob.dispatcher.fire_event(json_msg)
-			#
-			elif msg.has_key('ID'):
-				queue = LBSerialRequest.store[msg['ID']]
-				queue.put(json_msg)
+			if msg.has_key('REQ_ID'): # regular command
+				LBSerialRequest.queue_store[msg['REQ_ID']].put(json_msg)
+			elif msg.has_key('SAMPLE_ID'): #data streaming
+				g.sandbox.fire_event('SAMPLE', msg)
+				g.dispatcher.fire_event(json_msg)
 		#
-		# open serial port
-		self.open()
-		#
-		while glob.app_is_running:
-			try:
-				s = self.serial.readline()
-				if len(s) > 0: dispatch(s.strip())
-				#
-			except Exception as e:
-				debug('UART: Exception %s, (%s)' % (str(e), str(type(e))))
+		while g.app_is_running:
+			if not self.is_open:
+				self.open()
+			else:
+				try:
+					s = self.serial.readline()
+					if len(s) > 0: dispatch(s.strip())
+				except SerialException as e:
+					debug('UART: Exception %s, (%s)' % (str(e), str(type(e))))
+					self.close()
+		#		
 		print 'Serial port thread ... done'
-#...
-
-''' ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
-
-	Global object Initialization 
-
- ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ '''
-glob.serial = LBSerialPort()
-
-
-# LBSerialRequest	
 	
 
 class LBSerialRequest:
+	""" Synchronous request/response over serial """
+	
 	# static variables
-	store = {}
+	queue_store = {}
 	count = 100 # for generating unique ids
 	lock = Lock()
 	
@@ -90,24 +100,46 @@ class LBSerialRequest:
 		LBSerialRequest.count += 1
 		LBSerialRequest.lock.release()
 		return str(id)
-
+	#
 	def __init__(self, msg):
 		self.id = LBSerialRequest.get_id()
+		self.ack = None
 		self.queue = Queue(1)
-		self.resp = None
-		LBSerialRequest.store[self.id] = self.queue
-		msg['ID'] = self.id
-		print 'Send serial_cmd %s' % json.dumps(msg)
-		glob.serial.send(msg)
+		LBSerialRequest.queue_store[self.id] = self.queue
+		msg['REQ_ID'] = self.id
+		g.serial.write(msg)
 	#
-	def get_response(self):
+	def get_ack(self):
 		try:
-			self.resp = self.queue.get(timeout=2)
+			self.ack = self.queue.get(timeout=2)
 		except Exception as e:
-			self.resp = 'Request %d has timed out, %s' %  (self.id, str(e))
-			print self.resp
+			self.ack = 'Request %d has timed out, %s' %  (self.id, str(e))
 		finally:
-			del LBSerialRequest.store[self.id]
-			return self.resp
+			print 'Got ack for request %s: %s' % (self.id, self.ack)
+			del LBSerialRequest.queue_store[self.id]
+			return self.ack
 	
-			
+	
+""" Dispatch events from originating from the serial port """
+
+class LBDispatcher:
+	def __init__(self):
+		self.listeners = []
+  #
+	def add_listener(self, queue):
+		self.listeners.append(queue)
+  #
+	def remove_listener(self, queue):
+		self.listeners.remove(queue)
+		
+	def fire_event(self, data):
+			for q in self.listeners:
+				q.put(data)
+  #...
+
+
+""" Global object Initialization """
+
+g.dispatcher = LBDispatcher()
+g.serial = LBSerialPort()
+

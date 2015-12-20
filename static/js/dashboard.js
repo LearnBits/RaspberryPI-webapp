@@ -125,9 +125,9 @@ function createDashboardEntry(sensor) {
  * * * * * * * * * * * * */
 
 var sse = null;
+var stream_id = null;
 
 function toggleSampling() {
-	console.log(`toggle sampling: sse is ${sse}`);
 	if(!sse) {
 		console.log('init sampling');
 		initSensors(startSampling);
@@ -141,18 +141,23 @@ function startSampling() {
 	console.log('sse created');
 	sse.onmessage = function(message) {
 		sample = JSON.parse(message.data)
-		console.log(`Sample: ${sample.SENSOR_ID}, ${sample.VALUES.toString()}`);
+		console.log(`Sample: ${sample.SAMPLE_ID}, ${sample.VALUES.toString()}`);
 		for(var i=0, av=0, count=0; i<sample.VALUES.length; i++) {
 			av += sample.VALUES[i];
 			count += (sample.VALUES[i] > 0);
 		}
 		if(av > 0) av /= count;
-		dashboard[sample.SENSOR_ID].setValue(Math.round(av));
+		dashboard[sample.SAMPLE_ID].setValue(Math.round(av));
 	}
-	sse.addEventListener('shutdown', function(e) {
+	sse.addEventListener('start', function(message) {
+		console.log(`message.data=${message.data}`);
+		stream_id = message.data;
+		console.log(`stream_id=${stream_id}`);
+	});
+	sse.addEventListener('close', function(message) {
 		sse.close();
 		sse = null;
-		console.log('Server shutdown, closing connections');
+		console.log(`close sse for stream ${stream_id}`);
 	});
 	sse.onerror = function(e) {
 		console.log(`Eventsource failed: ${e.type}`);
@@ -160,9 +165,9 @@ function startSampling() {
 }
 
 function stopSampling() {
-	resetHardware();
-	sse.close();
-	sse = null;
+	$.get('/stop_sampling', {stream_id: stream_id}).done(function (jsonResp) {
+		console.log(`closing stream ${stream_id}`);
+	});
 }
 
 

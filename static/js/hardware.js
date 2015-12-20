@@ -13,7 +13,7 @@ function resetHardware() {
 }
 
 function scanHardware() {
-  $.get('/scan').done(function (jsonResp) {
+  $.get('/serial_scan').done(function (jsonResp) {
 		
 		console.log(jsonResp);
 		scanResult = JSON.parse(jsonResp);

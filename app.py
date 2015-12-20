@@ -1,11 +1,11 @@
 from threading 	import Thread
 from Queue 			import Queue
 from flask      import Flask, request, Response, redirect
-from serialport import LBSerialRequest
-from dispatcher import LBDispatcher
+from serialport import LBSerialRequest, LBDispatcher
+from cv         import LBVisionProcessor
 from sandbox    import LBSandbox
-from glob       import glob
-import time, flask.ext.cors
+from glob       import g
+import time, flask.ext.cors, cv2
 
 #--------------------
 
@@ -32,36 +32,63 @@ def hello():
 # Synchronous serial requests
 def send_serial_request(data):
 	req = LBSerialRequest(data)
-	json_resp = req.get_response()
-	return json_resp
+	ack = req.get_ack()
+	return ack
 
-@app.route('/scan')
+@app.route('/serial_scan')
 def scan():
 	return send_serial_request({'CMD':'SCAN'})
 
 @app.route('/serial_cmd')
 def serial_cmd():
-	# we're going to add an ID therefore
-	# a copy is needed b/c args is immutable
+	# we're going to add an REQ_ID therefore
+	# a copy is needed b/c request.args is immutable
 	return send_serial_request(request.args.copy()) 
 
-# Streaming request 
+# Streaming data request from serial port
+# global variables for data streams
+stream_count = 0
+stream_alive = {}
+
 @app.route('/start_sampling')
-def sample():
+def start_sampling():
 	def gen():
-		# init
+		# register listener
 		sampling_queue = Queue()
-		glob.dispatcher.add_listener(sampling_queue)
+		g.dispatcher.add_listener(sampling_queue)
+		# stream_id
+		global stream_count, stream_alive
+		stream_id = stream_count
+		yield 'event: start\n' + 'data: %d\n\n' % stream_id
+		stream_alive[stream_id] = True
+		stream_count +=1
 		# sampling loop
-		while glob.app_is_running:
-			json_sampling_msg = sampling_queue.get()
-			print 'Sending SSE sample %s' % json_sampling_msg
-			yield 'data: %s\n\n' % json_sampling_msg
+		while g.app_is_running and stream_alive[stream_id]:
+			json_sample = sampling_queue.get()
+			print 'Sending SSE sample %s' % json_sample
+			yield 'data: %s\n\n' % json_sample
 		#
-		yield 'event: shutdown\n' + 'data: {"time": "now"}\n\n'
+		# end of streaming thread
+		yield 'event: close\n' + 'data: {"time": "now"}\n\n'
 		print 'Data streaming thread .... done'
 	#
 	return Response(gen(), mimetype='text/event-stream')
+
+@app.route('/stop_sampling')
+def stop_sampling():
+	global stream_alive
+	stream_id = int(request.args['stream_id'])
+	print 'got stop_Stampling request for %d' % stream_id
+	stream_alive[stream_id] = False
+	return HTTP_OK
+
+# Video streaming from camera
+@app.route('/camera_stream')
+def video_feed():
+	#			
+	frame_gen = g.cv.get_jpeg_stream()
+	return Response(frame_gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
 
 # Sandbox requests
 @app.route('/run_program', methods=['POST'])
@@ -70,12 +97,12 @@ def run():
 	# author (str), date (str), program (str)
   #
 	p = str(request.form['program'])
-	glob.sandbox.run_program(p)
+	g.sandbox.run_program(p)
 	return HTTP_OK
 
 @app.route('/stop_program')
 def stop():
-	glob.sandbox.stop_program()
+	g.sandbox.stop_program()
 	return HTTP_OK
 
 @app.route('/shutdown', methods=['POST'])
@@ -109,7 +136,7 @@ if __name__ == '__main__':
 
 	#
 	# Run serial port
-	serial_port_thread = Thread(target=glob.serial.forever_loop)
+	serial_port_thread = Thread(target=g.serial.forever_loop)
 	serial_port_thread.start()
 	
 	#
@@ -117,8 +144,12 @@ if __name__ == '__main__':
 	web_app_thread = Thread(target=start_web_app)
 	web_app_thread.start()
 
+	#
+	# Open video camera # (OS X bug: must be done in the main thread)
+	#g.cv.start()
+	
 	try:
-		while glob.app_is_running:
+		while g.app_is_running:
 			time.sleep(1.0)
 	except Exception as e:
 		print 'Got exception %s' % str(e)
@@ -126,8 +157,10 @@ if __name__ == '__main__':
 		#
 		# Gracefully terminate all running threads (after hitting Ctrl-C) 
 		print '\nServer shutdown, exiting in 5 secs ...'
-		glob.app_is_running = False
-		glob.sandbox.fire_event('SHUTDOWN')
+		g.app_is_running = False
+		g.sandbox.fire_event('SHUTDOWN')
+		# Release video camera
+		#g.cv.stop()
 		# Shutdown web app by sending a 		
 		stop_web_app()
 		time.sleep(5.0)

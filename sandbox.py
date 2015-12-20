@@ -1,7 +1,7 @@
 from __future__ import with_statement
 from threading  import Thread, Event, RLock
 from time       import sleep
-from glob import glob
+from glob import g
 import json
 
 class LBSamplingEvent:
@@ -32,10 +32,12 @@ class LBSandbox:
 	#
 	def fire_event(self, event, data=None):
 		if self.running[self.pid]:
-			if event == 'SAMPLING':
+			if event == 'SAMPLE':
 				self.event.set(data)
 			elif event == 'SHUTDOWN':
+				# Set to None in order to release waiting in get_sample()
 				self.event.set(None)
+				self.stop.program()
   #
 	def get_sample(self):
 		return self.event.get()
@@ -62,7 +64,7 @@ class LBSandbox:
 		print 'program %d started' % my_pid
 		#
 		# main loop
-		while self.running[my_pid] and glob.app_is_running:
+		while self.running[my_pid] and g.app_is_running:
 			__sample__ = self.get_sample()
 			if __sample__: exec(bytecode)
 		#
@@ -80,4 +82,4 @@ class LBSandbox:
 	Global object Initialization 
 
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ '''
-glob.sandbox = LBSandbox()
+g.sandbox = LBSandbox()
