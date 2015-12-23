@@ -16,6 +16,6 @@ $(document).ready(function() {
 	setButtonState('stop-button', 'off');
 	setButtonState('sample-button', 'on');
 	
-	resetHardware();
-	scanHardware();
+	resetHardwarePoll();
+	scanHardwarePoll();
 });

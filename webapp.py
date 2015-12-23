@@ -1,25 +1,26 @@
-from threading 	import Thread
-from Queue 			import Queue
+from Queue 			import Queue, Empty
 from flask      import Flask, request, Response, redirect
 from serialport import LBSerialRequest, LBDispatcher
 from cv         import LBVisionProcessor
 from sandbox    import LBSandbox
 from glob       import g
-import time, flask.ext.cors, cv2
+import json, flask.ext.cors
 
 #--------------------
 
 def debug(s):
-	print >> stderr, '>>>>>>>>>> ' + s
+	print '>>>>>>>>>> ' + s
 
+def init_web_app():
+	app.debug = True
+	app.config.update(PROPAGATE_EXCEPTIONS=True)
+	flask.ext.cors.CORS(app)
+	g.app = app
 
+''' global var declarations '''
+app = Flask('__name__')
 HTTP_OK = 'OK', 200 
-#
-app = Flask(__name__)
-app.debug = True
-flask.ext.cors.CORS(app)
-#-----------------------------
-
+init_web_app()
 
 #---------------
 # Flask routing
@@ -31,9 +32,11 @@ def hello():
 
 # Synchronous serial requests
 def send_serial_request(data):
-	req = LBSerialRequest(data)
-	ack = req.get_ack()
-	return ack
+	if g.alive:
+		req = LBSerialRequest(data)
+		return req.get_ack() if req.is_ok else json.dumps({'STATUS':'SERIAL_ERROR'})		
+	else:
+		return json.dumps({'STATUS':'SERVER_SHUTDOWN'})
 
 @app.route('/serial_scan')
 def scan():
@@ -63,13 +66,17 @@ def start_sampling():
 		stream_alive[stream_id] = True
 		stream_count +=1
 		# sampling loop
-		while g.app_is_running and stream_alive[stream_id]:
-			json_sample = sampling_queue.get()
-			print 'Sending SSE sample %s' % json_sample
-			yield 'data: %s\n\n' % json_sample
+		while stream_alive[stream_id] and g.serial.is_open and g.alive:
+			try:
+				json_sample = sampling_queue.get(timeout=5)
+				print 'Sending SSE sample %s' % json_sample
+				yield 'data: %s\n\n' % json_sample
+			except Empty as e:
+				print 'Queue error in streaming data %s' % str(e)
 		#
 		# end of streaming thread
 		yield 'event: close\n' + 'data: {"time": "now"}\n\n'
+		g.dispatcher.remove_listener(sampling_queue)
 		print 'Data streaming thread .... done'
 	#
 	return Response(gen(), mimetype='text/event-stream')
@@ -86,7 +93,7 @@ def stop_sampling():
 @app.route('/camera_stream')
 def video_feed():
 	#			
-	frame_gen = g.cv.get_jpeg_stream()
+	frame_gen = g.camera.get_jpeg_stream_func()
 	return Response(frame_gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
@@ -114,55 +121,4 @@ def shutdown():
 	return 'Shutting down Learnbits server...'
 
 
-def start_web_app():
-	app.run(host='0.0.0.0', port=8080, threaded=True,
-					debug=True, use_evalex=False, use_reloader=False)
-	
-def stop_web_app():
-	from requests import post
-	from threading import Timer	
-	Timer(3.0, post, args=('http://localhost:8080/shutdown',)).start()
 
-# main starts here
-if __name__ == '__main__':
-
-	'''
-		Map of all running threads
-		1) serial port thread
-		2) web app main threads + request threads
-		3) sandbox thread (when running)
-		4) main thread - dormant
-	'''
-
-	#
-	# Run serial port
-	serial_port_thread = Thread(target=g.serial.forever_loop)
-	serial_port_thread.start()
-	
-	#
-	# Run web app
-	web_app_thread = Thread(target=start_web_app)
-	web_app_thread.start()
-
-	#
-	# Open video camera # (OS X bug: must be done in the main thread)
-	#g.cv.start()
-	
-	try:
-		while g.app_is_running:
-			time.sleep(1.0)
-	except Exception as e:
-		print 'Got exception %s' % str(e)
-	finally:
-		#
-		# Gracefully terminate all running threads (after hitting Ctrl-C) 
-		print '\nServer shutdown, exiting in 5 secs ...'
-		g.app_is_running = False
-		g.sandbox.fire_event('SHUTDOWN')
-		# Release video camera
-		#g.cv.stop()
-		# Shutdown web app by sending a 		
-		stop_web_app()
-		time.sleep(5.0)
-		from sys import exit
-		exit(0)

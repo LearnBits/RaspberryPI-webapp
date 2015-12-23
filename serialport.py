@@ -40,7 +40,7 @@ class LBSerialPort:
 			debug('Serial port is open')
 			#time.sleep(0.5)
 		except OSError as e:
-			debug('Cannot open the serial port: %s' % (str(e)))
+			debug('Cannot open the serial port: %s' % str(e))
 			debug('Retrying in 5 sec...')
 			time.sleep(5.0)
 	#
@@ -54,12 +54,19 @@ class LBSerialPort:
 			self.is_open = False
 	#
 	def write(self, cmd):
-		json_msg = 'json:' + json.dumps(cmd) + '\n'
 		if not self.is_open:
 			self.open()
-		self.serial.write(json_msg)
-		print 'Send serial_cmd %s' % json_msg
-
+		try:
+			if self.is_open:
+				json_msg = 'json:' + json.dumps(cmd) + '\n'
+				self.serial.write(json_msg)
+				print 'Send serial_cmd %s' % json_msg
+				return True
+			else:
+				return False
+		except SerialException as e:
+			debug('UART write failure')
+			return False
 	#	
 	def forever_loop(self):
 		#
@@ -71,7 +78,7 @@ class LBSerialPort:
 				g.sandbox.fire_event('SAMPLE', msg)
 				g.dispatcher.fire_event(json_msg)
 		#
-		while g.app_is_running:
+		while g.alive:
 			if not self.is_open:
 				self.open()
 			else:
@@ -107,7 +114,8 @@ class LBSerialRequest:
 		self.queue = Queue(1)
 		LBSerialRequest.queue_store[self.id] = self.queue
 		msg['REQ_ID'] = self.id
-		g.serial.write(msg)
+		status = g.serial.write(msg)
+		self.is_ok = status
 	#
 	def get_ack(self):
 		try:

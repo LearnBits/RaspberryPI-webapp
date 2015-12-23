@@ -64,7 +64,7 @@ class LBSandbox:
 		print 'program %d started' % my_pid
 		#
 		# main loop
-		while self.running[my_pid] and g.app_is_running:
+		while self.running[my_pid] and g.alive:
 			__sample__ = self.get_sample()
 			if __sample__: exec(bytecode)
 		#
