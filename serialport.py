@@ -73,10 +73,13 @@ class LBSerialPort:
 		def dispatch(json_msg):
 			msg = json.loads(json_msg)
 			if msg.has_key('REQ_ID'): # regular command
-				LBSerialRequest.queue_store[msg['REQ_ID']].put(json_msg)
+				queue = LBSerialRequest.queue_store[msg['REQ_ID']]
+				queue.put(json_msg)
 			elif msg.has_key('SAMPLE_ID'): #data streaming
 				g.sandbox.fire_event('SAMPLE', msg)
 				g.dispatcher.fire_event(json_msg)
+			else:
+				raise SerialException('Response is missing a REQ_ID or SAMPLE_ID')
 		#
 		while g.alive:
 			if not self.is_open:

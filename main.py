@@ -1,8 +1,8 @@
 from threading 	import Thread, Timer
 from glob       import g
 from flask      import Flask
-from serialport import LBSerialPort
-from camera     import LBVisionProcessor
+#from serialport import LBSerialPort
+#from camera     import LBVisionProcessor
 from time       import strftime, sleep
 from sys	    import exit
 from webapp     import app
@@ -45,6 +45,7 @@ def server_warm_up(args):
 	#
 	# Run serial port
 	if args.use_serial:
+		from serialport import LBSerialPort
 		serial_port_thread = Thread(target=g.serial.forever_loop)
 		serial_port_thread.start()
 	#
@@ -54,6 +55,7 @@ def server_warm_up(args):
 	#
 	# Open video camera # (OS X bug: must be done in the main thread)
 	if args.use_camera:
+		from camera import LBVisionProcessor
 		g.camera.turn_on()
 
 

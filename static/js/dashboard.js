@@ -5,31 +5,33 @@
  * * * * * * * * * * * * */
 
 
-function DashboardEntry(sensor, opts) {
+function DashboardEntry(sigID, signal) {
 	// Name must be unique
-	this.sensor = sensor;
+	this.signal = signal;
 	var sensorMarkup =
-		`<tr><td><div class='label-div' id='label${this.sensor.id}'>${this.sensor.name}</div></td>` +
-		`<td><div class='gauge-div' id='gauge${this.sensor.id}'></div></td>` +
+		`<tr><td><div class='label-div' id='label-${sigID}'>${signal.name}</div></td>` +
+		`<td><div class='gauge-div' id='gauge-${sigID}'></div></td>` +
 		//BUG in smoothie:  MUST provide width and height of the canvas
-		`<td><canvas class='graph-canvas' id='canvas${this.sensor.id}' ` +
-		`width='500' height='200'></canvas></td></tr>`;
+		`<td><canvas class='graph-canvas' id='canvas-${sigID}' ` +
+		`width='400' height='150'></canvas></td></tr>`;
 	//console.log(sensorMarkup);
 	$('#sensors-table').append(sensorMarkup);
 	// Graph
-	var canvasElem = $(`#canvas${this.sensor.id}`)[0];
+	var canvasElem = $(`#canvas-${sigID}`)[0];
 	//console.log(canvasElem.toString());
-	this.graph = new SmoothieChart(this.graphOptions(opts.graph));
+	var range = { minValue: signal.range.min, maxValue: signal.range.max };
+	this.graph = new SmoothieChart(this.graphOptions(range));
 	this.graph.streamTo(canvasElem, 1000 /*delay*/);
 	this.timeSeries = new TimeSeries();
-  this.graph.addTimeSeries(this.timeSeries, this.timeSeriesOptions(opts.timeSeries));
+  this.graph.addTimeSeries(this.timeSeries, this.timeSeriesOptions({}));
 	// Gauge
-	var gaugeElem = $(`#gauge${this.sensor.id}`)[0];
-	this.gauge = new Gauge(gaugeElem, this.gaugeOptions(opts.gauge));
+	range = { 'range': [signal.range.min, signal.range.max] };
+	var gaugeElem = $(`#gauge-${sigID}`)[0];
+	this.gauge = new Gauge(gaugeElem, this.gaugeOptions(range));
 }
 
 DashboardEntry.prototype.setValue = function(value) {
-	var computed_value = this.sensor.dashboard_func(value);
+	var computed_value = this.signal.graphFunc(value).toFixed(2);
   this.timeSeries.append(new Date().getTime(), computed_value);
 	this.gauge.setValue(computed_value);
 }
@@ -51,7 +53,7 @@ DashboardEntry.prototype.graphOptions = function(opts) {
 		minValue: 0,
 		timestampFormatter: SmoothieChart.timeFormatter
 	};
-	return this.setOptions(opts.graph, default_opts);
+	return this.setOptions(opts, default_opts);
 }
 
 DashboardEntry.prototype.timeSeriesOptions = function(opts) {
@@ -60,7 +62,7 @@ DashboardEntry.prototype.timeSeriesOptions = function(opts) {
 		strokeStyle:'none',
 		fillStyle:'rgba(6,117,135,0.36)'
 	};
-	return this.setOptions(opts.timeSeries, default_opts);
+	return this.setOptions(opts, default_opts);
 }
 
 DashboardEntry.prototype.gaugeOptions = function(opts) {
@@ -77,18 +79,17 @@ DashboardEntry.prototype.gaugeOptions = function(opts) {
 		tickLine: {interval: 15 /* between dial and tick */, length: 15},
 		meter_needle: {circle_r: 8, interval: 25} /* between dial and end of needle */
 	};
-	return this.setOptions(opts.gauge, default_opts);
+	return this.setOptions(opts, default_opts);
 }
 
 DashboardEntry.prototype.setOptions = function(options, default_options) {
-  var opt;
-	options = options || {};
-	for(opt in default_options) {
-		if(default_options.hasOwnProperty(opt)) {
-			if(default_options.hasOwnProperty(opt) && !options.hasOwnProperty(opt)) {
+	for(var opt in default_options) {
+		//if(default_options.hasOwnProperty(opt)) {
+			//if(default_options.hasOwnProperty(opt) && !options.hasOwnProperty(opt)) {
+			if(!options.hasOwnProperty(opt)) {
 				options[opt] = default_options[opt];
 			}
-		}
+		//}
 	}
 	return options;
 }
@@ -109,13 +110,17 @@ var defaultOpts = {
 }
 var dashboard = {}
 
-function createDashboardEntry(sensor) {
-	if(!(sensor.id in dashboard)) {
-		dashboard[sensor.id] = new DashboardEntry(sensor, defaultOpts);
-		dashboard[sensor.id].setValue(0);
+function createDashboardEntry(sensorID) {
+	sensor = sensorPropsTable[sensorID];
+	for(var i = 0; i < sensor.signal.length; i++) {
+		var sigID = `${sensorID}-${sensor.signal[i].name}`;
+		if(!(sigID in dashboard)) {
+			dashboard[sigID] = new DashboardEntry(sigID, sensor.signal[i]);
+			dashboard[sigID].setValue(0);
+		}
+		else
+			console.log(`${sigID} already exists in the dashboard`);
 	}
-	else
-		console.log(`Sensor (${sensor.name},${sensor.id}) already exists in the dashboard`);
 }
 
 /* * * * * * * * * * * * *
@@ -136,26 +141,26 @@ function toggleSampling() {
 		stopSampling();
 }
 
+function plotSample(json_data) {
+	samplingData = JSON.parse(json_data);
+	sensor = sensorPropsTable[samplingData.SAMPLE_ID];
+	console.log(`Sample: ${samplingData.SAMPLE_ID}, ${samplingData.VAL.toString()}`);
+	for(var i = 0; i < sensor.signal.length; i++) {
+		var sigID = `${samplingData.SAMPLE_ID}-${sensor.signal[i].name}`;
+		dashboard[sigID].setValue(samplingData.VAL);
+	}
+}
+
 function startSampling() {
 	sse = new EventSource('/start_sampling');
 	console.log('sse created');
 	sse.onmessage = function(message) {
-		sample = JSON.parse(message.data)
-		console.log(`Sample: ${sample.SAMPLE_ID}, ${sample.VALUES.toString()}`);
-		dashboard[sample.SAMPLE_ID].setValue(sample.VALUES);
-		/*
-		for(var i=0, av=0, count=0; i<sample.VALUES.length; i++) {
-			av += sample.VALUES[i];
-			count += (sample.VALUES[i] > 0);
-		}
-		if(av > 0) av /= count;
-		dashboard[sample.SAMPLE_ID].setValue(Math.round(av));
-		*/
+		plotSample(message.data);
 	}
 	sse.addEventListener('start', function(message) {
-		console.log(`message.data=${message.data}`);
+		//console.log(`message.data=${message.data}`);
 		stream_id = message.data;
-		console.log(`stream_id=${stream_id}`);
+		//console.log(`stream_id=${stream_id}`);
 	});
 	sse.addEventListener('close', function(message) {
 		sse.close();

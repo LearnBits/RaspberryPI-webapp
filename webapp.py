@@ -1,7 +1,7 @@
 from Queue 			import Queue, Empty
 from flask      import Flask, request, Response, redirect
 from serialport import LBSerialRequest, LBDispatcher
-from cv         import LBVisionProcessor
+#from cv         import LBVisionProcessor
 from sandbox    import LBSandbox
 from glob       import g
 import json, flask.ext.cors
@@ -19,7 +19,7 @@ def init_web_app():
 
 ''' global var declarations '''
 app = Flask('__name__')
-HTTP_OK = 'OK', 200 
+HTTP_OK = 'OK', 200
 init_web_app()
 
 #---------------
@@ -34,7 +34,7 @@ def hello():
 def send_serial_request(data):
 	if g.alive:
 		req = LBSerialRequest(data)
-		return req.get_ack() if req.is_ok else json.dumps({'STATUS':'SERIAL_ERROR'})		
+		return req.get_ack() if req.is_ok else json.dumps({'STATUS':'SERIAL_ERROR'})
 	else:
 		return json.dumps({'STATUS':'SERVER_SHUTDOWN'})
 
@@ -46,7 +46,7 @@ def scan():
 def serial_cmd():
 	# we're going to add an REQ_ID therefore
 	# a copy is needed b/c request.args is immutable
-	return send_serial_request(request.args.copy()) 
+	return send_serial_request(request.args.copy())
 
 # Streaming data request from serial port
 # global variables for data streams
@@ -92,7 +92,7 @@ def stop_sampling():
 # Video streaming from camera
 @app.route('/camera_stream')
 def video_feed():
-	#			
+	#
 	frame_gen = g.camera.get_jpeg_stream_func()
 	return Response(frame_gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
@@ -100,7 +100,7 @@ def video_feed():
 # Sandbox requests
 @app.route('/run_program', methods=['POST'])
 def run():
-	# Format of /upload POST request 
+	# Format of /upload POST request
 	# author (str), date (str), program (str)
   #
 	p = str(request.form['program'])
@@ -119,6 +119,3 @@ def shutdown():
 	shutdown_func()
 	print 'Web app thread ... done'
 	return 'Shutting down Learnbits server...'
-
-
-

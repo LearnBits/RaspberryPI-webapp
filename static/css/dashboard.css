@@ -10,7 +10,7 @@
 	color: aliceblue;
 	padding-top: 10px;
 	font-family: "Nunito", sans-serif;
-	font-size: 20pt;
+	font-size: 14pt;
 }
 #sensors-table .gauge-div {
 	background-color: #8a2b61;
@@ -18,6 +18,6 @@
 }
 
 #sensors-table .graph-canvas {
-	width:500px;
-	height:200px;
+	width:300px;
+	height:150px;
 }

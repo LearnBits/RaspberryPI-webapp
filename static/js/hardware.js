@@ -34,10 +34,12 @@ function scanHardwarePoll(fCounter) {
 					initCommand = []
 					for(var i = 0; i < scanResult.I2C_ADDR.length; i++) {
 						var addr = scanResult.I2C_ADDR[i];
-						var sensor = sensorAddrMap[addr];
-						selectSensorControl(sensor.id);
-						createDashboardEntry(sensor);
-						initCommand.push(sensor.init_cmd);
+						var ID = sensorIDTable[addr];
+						console.log('in scan found ID=' + ID )
+						selectSensorControl(ID);
+						sensor = sensorPropsTable[ID];
+						createDashboardEntry(ID);
+						initCommand.push(sensor.command);
 					}
 				}
 			}
@@ -46,35 +48,7 @@ function scanHardwarePoll(fCounter) {
 	var timer = window.setInterval(scanHardware, 5000);
 }
 
-	/*
-function resetHardware(fCounter) {
-  $.get('/serial_cmd', {CMD: 'RESET'}).done(function (jsonResp) {
-		if(responseIsOK(JSON.parse(jsonResp), 'Hardware reset')) {
-			console.log(jsonResp);
-			if(fCounter == 1) fCounter -= 1;
-	});
-}
 
-function scanHardware(fCounter) {
-  $.get('/serial_scan').done(function (jsonResp) {
-		scanResult = JSON.parse(jsonResp);
-		if(responseIsOK(scanResult, 'Hardware scan')) {
-			if(!('RESP' in scanResult && scanResult.RESP == 'SCAN'))
-				console.log('Bad SCAN message: ' + jsonResp);
-			else {
-				initCommand = []
-				for(var i = 0; i < scanResult.I2C_ADDR.length; i++) {
-					var addr = scanResult.I2C_ADDR[i];
-					var sensor = sensorAddrMap[addr];
-					selectSensorControl(sensor.id);
-					createDashboardEntry(sensor);
-					initCommand.push(sensor.cmd);
-				}
-			}
-		}
-	});
-}
-*/
 function initSensors(startSamplingFunc) {
 	var count = 0;
 	console.log(`Initializing ${initCommand.length} sensors`);
@@ -92,14 +66,40 @@ function initSensors(startSamplingFunc) {
 	}
 }
 
-var sensorAddrMap = {
-	'104': {
-		name: 'Accelerometer',
-		id: 'MPU6050',
-		init_cmd: {CMD: 'MPU6050', MSEC: 500},
-		dashboard_func: function(arr) {
-			return arr.length == undefined ? arr /* scalar */
-				: Math.sqrt(arr[0]*arr[0] + arr[1]*arr[1] + arr[2]*arr[2]);
-		}
-	 }
+var sensorIDTable = {
+	'104': 'MPU6050',
+	'119' : 'BMP180'
+}
+
+var sensorPropsTable = {
+
+	'MPU6050': {
+		command: {CMD: 'MPU6050', MSEC: 1500},
+		signal: [ {
+			name: 'Accelerometer',
+			graphFunc: function(val) {
+				return val == 0 ? 0 : Math.sqrt(val[0]*val[0] + val[1]*val[1] + val[2]*val[2]);
+			},
+			range: { min: 0, max: 50000 }
+		}, {
+			name: 'Gyroscope',
+			graphFunc: function(val) {
+				return val == 0 ? 0 : Math.sqrt(val[3]*val[3] + val[4]*val[4] + val[5]*val[5]);
+			},
+			range: { min: 0, max: 50000 }
+		} ]
+	},
+
+	'BMP180': {
+		command: {CMD: 'BMP180', MSEC: 1500},
+		signal: [ {
+			name: 'Temperature',
+			graphFunc: function(val) { return val == 0 ? 0 : val[0]; },
+			range: { min: 0, max: 50 }
+		}, {
+			name: 'Pressure',
+			graphFunc: function(val) { return val == 0 ? 0 : val[1]; },
+			range: { min: 0, max: 1300 }
+	 } ]
+ }
 };
