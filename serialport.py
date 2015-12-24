@@ -1,4 +1,4 @@
-from serial     import Serial, SerialException 
+from serial     import Serial, SerialException
 from threading  import Lock
 from Queue      import Queue
 from glob       import g
@@ -11,17 +11,17 @@ def debug(s):
 	print '>>>>>>>>>> ' + s
 
 class LBSerialPort:
-	""" 
+	"""
 		Handles full duplex communication with the serial prot
 		Support multiple platforms
 		Pattern = singleton
 	"""
-  
+
 	@staticmethod
 	def get_params():
 		if platform.system() == 'Darwin':
 			# Mac OS X
-			return ('/dev/cu.usbmodem1421', 115200) 
+			return ('/dev/cu.usbmodem1421', 115200)
 		else:
 			# Raspberry PI
 			return ('/dev/ttyAMA0', 57600)
@@ -67,10 +67,10 @@ class LBSerialPort:
 		except SerialException as e:
 			debug('UART write failure')
 			return False
-	#	
+	#
 	def forever_loop(self):
 		#
-		def dispatch(json_msg): 
+		def dispatch(json_msg):
 			msg = json.loads(json_msg)
 			if msg.has_key('REQ_ID'): # regular command
 				LBSerialRequest.queue_store[msg['REQ_ID']].put(json_msg)
@@ -88,19 +88,18 @@ class LBSerialPort:
 				except SerialException as e:
 					debug('UART: Exception %s, (%s)' % (str(e), str(type(e))))
 					self.close()
-		#		
+		#
 		print 'Serial port thread ... done'
-	
+
 
 class LBSerialRequest:
 	""" Synchronous request/response over serial """
-	
 	# static variables
 	queue_store = {}
 	count = 100 # for generating unique ids
 	lock = Lock()
-	
-	@staticmethod 
+
+	@staticmethod
 	def get_id():
 		LBSerialRequest.lock.acquire()
 		id = LBSerialRequest.count
@@ -126,8 +125,8 @@ class LBSerialRequest:
 			print 'Got ack for request %s: %s' % (self.id, self.ack)
 			del LBSerialRequest.queue_store[self.id]
 			return self.ack
-	
-	
+
+
 """ Dispatch events from originating from the serial port """
 
 class LBDispatcher:
@@ -139,7 +138,7 @@ class LBDispatcher:
   #
 	def remove_listener(self, queue):
 		self.listeners.remove(queue)
-		
+
 	def fire_event(self, data):
 			for q in self.listeners:
 				q.put(data)
@@ -150,4 +149,3 @@ class LBDispatcher:
 
 g.dispatcher = LBDispatcher()
 g.serial = LBSerialPort()
-

@@ -35,8 +35,7 @@ class LBSandbox:
 			if event == 'SAMPLE':
 				self.event.set(data)
 			elif event == 'SHUTDOWN':
-				# Set to None in order to release waiting in get_sample()
-				self.event.set(None)
+				self.event.set(None) # unblock if waiting in get_sample()
 				self.stop.program()
   #
 	def get_sample(self):
@@ -44,7 +43,7 @@ class LBSandbox:
   #
 	def run_program(self, program):
 		#	Must lock this critical portion
-		# to make sure that only one program runs at a given time 
+		# to make sure that only one program runs at a given time
 		with self.rlock:
 			self.stop_program()
 			self.program = program
@@ -79,7 +78,7 @@ class LBSandbox:
 
 ''' ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 
-	Global object Initialization 
+	Global object Initialization
 
  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ '''
 g.sandbox = LBSandbox()

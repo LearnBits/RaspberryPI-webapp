@@ -6,9 +6,8 @@ from camera     import LBVisionProcessor
 from time       import strftime, sleep
 from sys	    import exit
 from webapp     import app
-from requests   import post
 from dateutil.relativedelta import relativedelta
-import datetime
+import datetime, requests, argparse
 
 
 
@@ -29,51 +28,74 @@ def print_uptime(start_uptime):
 	print 'Total uptime: %s' % pprint(diff, ['month', 'day', 'hour', 'minute', 'second'])
 
 
-def warm_up():
+def server_warm_up(args):
 	''' Start all threads '''
 	def start_web_app():
-		app.run(host='0.0.0.0', port=8080, threaded=True, debug=True, use_evalex=False, use_reloader=False)
+		app.run(host='0.0.0.0', port=args.port, threaded=True, debug=True, use_evalex=False, use_reloader=False)
+	#
+	print 'o-o-o-o-o-o-o-o-o-o-o-o-o-o'
+	print 'o                         o'
+	print 'o  Learnbits application  o'
+	print 'o                         o'
+	print 'o-o-o-o-o-o-o-o-o-o-o-o-o-o'
+	print '   use_camera  = %s' % args.use_camera
+	print '   use_serial  = %s' % args.use_serial
+	print '   server port = %d' % args.port
+	print
 	#
 	# Run serial port
-	serial_port_thread = Thread(target=g.serial.forever_loop)
-	serial_port_thread.start()
+	if args.use_serial:
+		serial_port_thread = Thread(target=g.serial.forever_loop)
+		serial_port_thread.start()
 	#
 	# Run web app
 	web_app_thread = Thread(target=start_web_app)
 	web_app_thread.start()
 	#
 	# Open video camera # (OS X bug: must be done in the main thread)
-	g.camera.turn_on()
+	if args.use_camera:
+		g.camera.turn_on()
 
 
-def cool_down():
+def server_cool_down(args):
 	''' Gracefully terminate all running threads '''
 	def stop_web_app():
-		Timer(3.0, post, args=('http://localhost:8080/shutdown',)).start()
+		# wait 3 secs to give time to clients to close their connections
+		Timer(3.0, requests.post, args=('http://localhost:%d/shutdown' % args.port,)).start()
+		sleep(3.5) # wait until flask server shutdown
 	#
+	print
 	print 'o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o'
 	print 'o                                           o'
-	print 'o  Server shutdown, exiting in 5 secs ...   o'
+	print 'o  Learnbits shutdown, exiting in 3 secs .  o'
 	print 'o                                           o'
 	print 'o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o'
-	# Set global alive flag to false
+	#
 	g.alive = False
-	# End sandbox programs
+	#
 	g.sandbox.fire_event('SHUTDOWN')
-	# Release video camera
-	g.camera.turn_off()
-	# Shutdown web app 		
+	#
+	if args.use_camera:
+		g.camera.turn_off()
+	#
 	stop_web_app()
-	# wait 5 secs for all thread to terminate
-	sleep(5.0)
 
+def parse_args():
+	parser = argparse.ArgumentParser(description='Learnbits application')
+	parser.add_argument('--no-camera', dest='use_camera', action='store_false', default=True, help='disable the camera')
+	parser.add_argument('--no-serial', dest='use_serial', action='store_false', default=True, help='disable the serial port')
+	parser.add_argument('--port', dest='port',  action='store', type=int,       default=8080, help='http server port')
+	args = parser.parse_args()
+	return args
 
 # main starts here
 if __name__ == '__main__':
-	# Measure start time
+	#
 	start_uptime = datetime.datetime.strptime(strftime(time_format), time_format)
 	#
-	warm_up()
+	args = parse_args()
+	#
+	server_warm_up(args)
 
 	''' main idle loop '''
 	try:
@@ -83,8 +105,8 @@ if __name__ == '__main__':
 		print 'Got exception %s' % str(e)
 	finally:
 		''' server shutdown	(^C)'''
-		cool_down()
-		# Uptime
+		server_cool_down(args)
+		#
 		print_uptime(start_uptime)
-		# Bye
+		#
 		exit(0)

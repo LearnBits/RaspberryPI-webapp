@@ -1,25 +1,21 @@
 // Map between addresses and sensor data
 
-var sensorAddrMap = {
-	'104': {name: 'Accelerometer', id: 'MPU6050', cmd: {CMD: 'MPU6050', MSEC: 500} }
-};
-
 var initCommand = null;
 var errMessages = {SERIAL_ERROR: '', SERVER_SHUTDOWN: ''}
 
-function checkError(resp, desc) {
+function responseIsOK(resp, desc) {
 	if('STATUS' in resp && resp.STATUS in errMessages ) {
 		console.log(`Could not complete ${desc}, serial error`);
-		return true;
+		return false;
 	}
 	else
-		return false;
+		return true;
 }
 
 function resetHardwarePoll() {
   var timer = window.setInterval( function() {
 		$.get('/serial_cmd', {CMD: 'RESET'}).done(function (jsonResp) {
-			if(!checkError(JSON.parse(jsonResp), 'Hardware reset')) {
+			if(responseIsOK(JSON.parse(jsonResp), 'Hardware reset')) {
 				console.log(jsonResp);
 				window.clearInterval(timer);
 			}
@@ -29,9 +25,9 @@ function resetHardwarePoll() {
 
 function scanHardwarePoll(fCounter) {
 	function scanHardware() {
-		$.get('/serial_scan').done(function (jsonResp) {		
+		$.get('/serial_scan').done(function (jsonResp) {
 			scanResult = JSON.parse(jsonResp);
-			if(!checkError(scanResult, 'Hardware scan')) {
+			if(responseIsOK(scanResult, 'Hardware scan')) {
 				if(!('RESP' in scanResult && scanResult.RESP == 'SCAN'))
 					console.log('Bad SCAN message: ' + jsonResp);
 				else {
@@ -41,7 +37,7 @@ function scanHardwarePoll(fCounter) {
 						var sensor = sensorAddrMap[addr];
 						selectSensorControl(sensor.id);
 						createDashboardEntry(sensor);
-						initCommand.push(sensor.cmd);
+						initCommand.push(sensor.init_cmd);
 					}
 				}
 			}
@@ -53,16 +49,16 @@ function scanHardwarePoll(fCounter) {
 	/*
 function resetHardware(fCounter) {
   $.get('/serial_cmd', {CMD: 'RESET'}).done(function (jsonResp) {
-		if(!checkSerialError(JSON.parse(jsonResp), 'Hardware reset')) {
+		if(responseIsOK(JSON.parse(jsonResp), 'Hardware reset')) {
 			console.log(jsonResp);
 			if(fCounter == 1) fCounter -= 1;
 	});
 }
 
 function scanHardware(fCounter) {
-  $.get('/serial_scan').done(function (jsonResp) {		
+  $.get('/serial_scan').done(function (jsonResp) {
 		scanResult = JSON.parse(jsonResp);
-		if(!checkSerialError(scanResult, 'Hardware scan')) {
+		if(responseIsOK(scanResult, 'Hardware scan')) {
 			if(!('RESP' in scanResult && scanResult.RESP == 'SCAN'))
 				console.log('Bad SCAN message: ' + jsonResp);
 			else {
@@ -86,7 +82,7 @@ function initSensors(startSamplingFunc) {
 		console.log(`send ${JSON.stringify(initCommand[i])}`);
 		$.get('/serial_cmd', initCommand[i])
   		.done(function (resp) {
-				if(!checkSerialError(JSON.parse(resp), `${JSON.stringify(initCommand[i])}`)) {
+				if(responseIsOK(JSON.parse(resp), `${JSON.stringify(initCommand[i])}`)) {
 					console.log(`resp=${resp}`);
 					count += 1;
 					if(count == initCommand.length)
@@ -95,3 +91,15 @@ function initSensors(startSamplingFunc) {
 			});
 	}
 }
+
+var sensorAddrMap = {
+	'104': {
+		name: 'Accelerometer',
+		id: 'MPU6050',
+		init_cmd: {CMD: 'MPU6050', MSEC: 500},
+		dashboard_func: function(arr) {
+			return arr.length == undefined ? arr /* scalar */
+				: Math.sqrt(arr[0]*arr[0] + arr[1]*arr[1] + arr[2]*arr[2]);
+		}
+	 }
+};

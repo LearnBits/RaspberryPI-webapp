@@ -1,7 +1,7 @@
 function runProgram() {
 	var program = aceEditor.getValue();
 	console.log('run program ' + program);
-  $.post('/run_program', { 
+  $.post('/run_program', {
 	    author: 'david',
 	    date: new Date(),
 	    program: program,
@@ -26,9 +26,9 @@ function stopProgram() {
 
 
 /* * * * * * * * * * * * * * * * * *
- *																 *	
+ *																 *
  *  Ace code									 *
- *																 *	
+ *																 *
  * * * * * * * * * * * * * * * * * */
 var aceEditor = null;
 
@@ -43,9 +43,9 @@ function initAceEditor() {
 
 
 /* * * * * * * * * * * * * * * * * *
- *																 *	
+ *																 *
  *  Blockly code									 *
- *																 *	
+ *																 *
  * * * * * * * * * * * * * * * * * */
 
 function generatePythonSourceCode() {
@@ -79,7 +79,7 @@ function generatePythonSourceCode() {
 
 function initBlockly() {
 	var workspace = Blockly.inject(
-		'blockly-editor-div', 
+		'blockly-editor-div',
 		{
 			comments: true,
 			disable: true,
@@ -122,4 +122,3 @@ function fromXml() {
   Blockly.Xml.domToWorkspace(workspace, xml);
 }
 */
-

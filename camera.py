@@ -7,7 +7,7 @@ from glob import g
 import cv2, time, platform
 
 fontFace = cv2.FONT_HERSHEY_SIMPLEX
-fontScale = 0.5
+fontScale = 0.4
 
 class LBVisionProcessor:
 
@@ -62,7 +62,7 @@ class LBVisionProcessor:
 			return picamera_frame_grabber(self)
 
 	def camera_input(self):
-		time.sleep(1)
+		time.sleep(1.0)
 		grab_frame = self.get_frame_generator()
 		for frame in grab_frame():
 			self.new_frame = frame
@@ -80,17 +80,15 @@ class LBVisionProcessor:
 			self.drawInfo()
 			self.processed_count += 1
 			self.processed_frame_event.set()
-			#if (self.capturer.frame_counter % 100) == 0:
-			#	print 'Processor FPS=%f [%d / %d]' % ((self.raw_frame_counter / 100.0), self.raw_frame_counter, self.capturer.frame_counter)
-			#	self.raw_frame_counter = 0
-			#self.new_frame.set()
 
 	def drawInfo(self):
 		if self.decorate:
-			text = 'frame: %d' % self.raw_frame_count
-			cv2.putText(self.processed_frame, text = text, org = (10, 10), fontFace = fontFace, fontScale = fontScale, color = (0, 255, 0), thickness = 1)
-
-			#text = '%f - %f' %((self.processed_count / 300.0),(self.display_count / 300.0))
+			# background white rectangle (I measured the box manually :-)
+			cv2.rectangle(self.processed_frame, (5, 1), (265, 13), (244, 244, 244), -1)
+			# frame number and % of dropped frames
+			text = 'frame: %d    (%f - %f)' % (self.raw_frame_count, (float(self.processed_count) / self.raw_frame_count), (float(self.displayed_count) / self.raw_frame_count))
+			cv2.putText(self.processed_frame, text = text, org = (10, 10), fontFace = fontFace, fontScale = fontScale, color = (139, 139, 0), thickness = 1)
+			# running marker
 			cv2.putText(self.processed_frame, text = "||", org = (10 + 10 * ((self.raw_frame_count % 10) + 1), 30 + 10 * ((self.raw_frame_count % 10) + 1)), fontFace = fontFace, fontScale = 0.3, color = (0, 0, 255))
 
 	def get_jpeg_stream_func(self):
