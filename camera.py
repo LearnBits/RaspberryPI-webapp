@@ -4,6 +4,7 @@ from compvision.video_inputs.frame_grabber import *
 from compvision.jpeg import *
 from threading import Thread, Event
 from glob import g
+from flask import jsonify
 import cv2, time, platform
 
 fontFace = cv2.FONT_HERSHEY_SIMPLEX
@@ -25,6 +26,7 @@ class LBVisionProcessor:
 		self.processed_frame_event = Event()
 		self.new_frame_event = Event()
 		self.isOSX = True if platform.system() == 'Darwin' else False
+		# TODO also define isRPI
 
 	def turn_on(self):
 		if self.isOSX:
@@ -34,7 +36,7 @@ class LBVisionProcessor:
 			# Raspberry PI
 			import picamera
 			self.camera = picamera.PiCamera()
-		self.start()
+		#self.start()
 
 	def turn_off(self):
 		if self.camera != None:
@@ -46,8 +48,8 @@ class LBVisionProcessor:
 
 	def start(self):
 		self.alive = True
-		Thread(target = self.camera_input  ).start()
-		Thread(target = self.camera_process).start()
+		Thread(target = self.camera_get_frame).start()
+		Thread(target = self.camera_process_frame).start()
 
 	def stop(self):
 		self.alive = False
@@ -61,7 +63,7 @@ class LBVisionProcessor:
 		else:
 			return picamera_frame_grabber(self)
 
-	def camera_input(self):
+	def camera_get_frame(self):
 		time.sleep(1.0)
 		grab_frame = self.get_frame_generator()
 		for frame in grab_frame():
@@ -70,8 +72,9 @@ class LBVisionProcessor:
 			self.new_frame_event.set()
 			if self.done():
 				break
+		print 'Thread camera_get_frame done.'
 
-	def camera_process(self):
+	def camera_process_frame(self):
 		time.sleep(1)
 		while not self.done():
 			self.new_frame_event.wait()
@@ -80,6 +83,7 @@ class LBVisionProcessor:
 			self.drawInfo()
 			self.processed_count += 1
 			self.processed_frame_event.set()
+		print 'Thread camera_process_frame done.'
 
 	def drawInfo(self):
 		if self.decorate:
@@ -91,9 +95,9 @@ class LBVisionProcessor:
 			# running marker
 			cv2.putText(self.processed_frame, text = "||", org = (10 + 10 * ((self.raw_frame_count % 10) + 1), 30 + 10 * ((self.raw_frame_count % 10) + 1)), fontFace = fontFace, fontScale = 0.3, color = (0, 0, 255))
 
-	def get_jpeg_stream_func(self):
+	def get_jpeg_stream_generator(self):
 		#
-		def gen_jpeg_frames():
+		def gen():
 			while not self.done():
 				self.processed_frame_event.wait()
 				self.processed_frame_event.clear()
@@ -103,9 +107,16 @@ class LBVisionProcessor:
 				stream_data = b'--frame\r\nContent-Type: image/jpeg\r\n\r\n' + jpeg_buf+ b'\r\n'
 				yield stream_data
 				self.displayed_count += 1
+			print 'frame generator done'
 		#
-		return gen_jpeg_frames
-
+		return gen
+	'''
+	def get_result_generator(self):
+		def gen():
+			while not self.done():
+				stream_result = 'event: result\n' + 'data: %d\n\n' % jsonify(**self.result)
+				yield stream_results
+	'''
 ''' ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 
 	Global object Initialization

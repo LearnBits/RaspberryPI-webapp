@@ -1,7 +1,7 @@
-from Queue 			import Queue, Empty
+from Queue      import Queue, Empty
 from flask      import Flask, request, Response, redirect
 from serialport import LBSerialRequest, LBDispatcher
-#from cv         import LBVisionProcessor
+from camera     import LBVisionProcessor
 from sandbox    import LBSandbox
 from glob       import g
 import json, flask.ext.cors
@@ -40,13 +40,19 @@ def send_serial_request(data):
 
 @app.route('/serial_scan')
 def scan():
-	return send_serial_request({'CMD':'SCAN'})
+	if g.args.use_serial:
+		return send_serial_request({'CMD':'SCAN'})
+	else:
+		return json.dumps({'STATUS':'NO_SERIAL'})
 
 @app.route('/serial_cmd')
 def serial_cmd():
 	# we're going to add an REQ_ID therefore
 	# a copy is needed b/c request.args is immutable
-	return send_serial_request(request.args.copy())
+	if g.args.use_serial:
+		return send_serial_request(request.args.copy())
+	else:
+		return json.dumps({'STATUS':'NO_SERIAL'})
 
 # Streaming data request from serial port
 # global variables for data streams
@@ -89,11 +95,23 @@ def stop_sampling():
 	stream_alive[stream_id] = False
 	return HTTP_OK
 
+
 # Video streaming from camera
+@app.route('/start_camera')
+def start_camera():
+	print 'start_camera'
+	g.camera.start()
+	return HTTP_OK
+
+@app.route('/stop_camera')
+def stop_camera():
+	print 'stop_camera'
+	g.camera.stop()
+	return HTTP_OK
+
 @app.route('/camera_stream')
 def video_feed():
-	#
-	frame_gen = g.camera.get_jpeg_stream_func()
+	frame_gen = g.camera.get_jpeg_stream_generator()
 	return Response(frame_gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 

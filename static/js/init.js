@@ -1,5 +1,5 @@
 
-$(document).ready(function() {  
+$(document).ready(function() {
 	initTabs();
 	initButtons();
 	initSensorControls();
@@ -7,7 +7,7 @@ $(document).ready(function() {
 	initBlockly();
 	initDashboard();
 
-	/* * * * * * * * * 
+	/* * * * * * * * *
 	 * Initial state
 	 * * * * * * * * */
 	selectTab($('#blockly-editor'));
@@ -15,7 +15,7 @@ $(document).ready(function() {
 	setButtonState('play-button', 'on');
 	setButtonState('stop-button', 'off');
 	setButtonState('sample-button', 'on');
-	
-	resetHardwarePoll();
-	scanHardwarePoll();
+
+	resetPeripherals();
+	scanPeripherals();
 });

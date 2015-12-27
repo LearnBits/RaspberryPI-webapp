@@ -1,4 +1,4 @@
-/* * * * * * * * * 
+/* * * * * * * * *
 *
 * Tabs handling
 *
@@ -7,7 +7,7 @@ function initTabs() {
 // Tabs initial state
 	$('#tabs-div ul li').each(function() {
 		unselectTab($(this));
-	});														 
+	});
 	// Tab selection
 	$('#tabs-div ul li').click(function() {
 		// (1) select me/show div (2) unselect others/hide other divs
@@ -27,7 +27,7 @@ function initTabs() {
 			hoverTab($(this));
 	});
 	$('#tabs-div ul li').mouseleave(function() {
-		// Pay attention: selected tab also has class tab-hover, 
+		// Pay attention: selected tab also has class tab-hover,
 		if($(this).hasClass('tab-hover') && !$(this).hasClass('tab1'))
 			unselectTab($(this));
 	});
@@ -46,8 +46,8 @@ function hoverTab($tab) {
 // handle toggling content-divs
 function showContentDiv(content, show) {
 	$('#' + content + '-div').css({visibility: show ? 'visible' : 'hidden'});
-		
-	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	 *               >>>>>   Unbelievable!!   <<<<<
 	 *   Blockly silently creates elements under the document root
 	 *            Need to manually make them invisible
@@ -58,7 +58,7 @@ function showContentDiv(content, show) {
 		});
 }
 
-/* * * * * * * * * 
+/* * * * * * * * *
 *
 * Sensors handling
 *
@@ -67,7 +67,7 @@ function initSensorControls() {
 // Sensors initial state
 	$('#sensors-div ul li').each(function() {
 		unselectSensorControl($(this).attr('id'));
-	});														 
+	});
 	// Sensor selection
 	$('#sensors-div ul li').click(function() {
 		/*if(!$(this).hasClass('sensor-selected'))
@@ -85,7 +85,7 @@ function unselectSensorControl(id) {
 }
 
 
-/* * * * * * * * * 
+/* * * * * * * * *
 *
 * Buttons handling
 *
@@ -94,7 +94,7 @@ function initButtons() {
 $('[class="control-button"]').each(function() {
 		$(this).attr('src', $(this).data('src') + '1.png');
 		$(this).mouseenter(function() {
-			var isOn = $(this).data('state') == 'on';			
+			var isOn = $(this).data('state') == 'on';
 			$(this).attr('src', $(this).data('src') + (isOn ? '2.png' : '1.png'));
 			$(this).css({'cursor': isOn ? 'pointer' : 'default'});
 		});
@@ -105,6 +105,7 @@ $('[class="control-button"]').each(function() {
 	$('#play-button').click(runProgram);
 	$('#stop-button').click(stopProgram);
 	$('#sample-button').click(toggleSampling);
+	$('#camera-button').click(toggleCamera);
 }
 
 function setButtonState(button, state) {

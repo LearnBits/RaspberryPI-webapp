@@ -1,7 +1,7 @@
 // Map between addresses and sensor data
 
 var initCommand = null;
-var errMessages = {SERIAL_ERROR: '', SERVER_SHUTDOWN: ''}
+var errMessages = {SERIAL_ERROR: '', NO_SERIAL: '', SERVER_SHUTDOWN: ''}
 
 function responseIsOK(resp, desc) {
 	if('STATUS' in resp && resp.STATUS in errMessages ) {
@@ -12,10 +12,15 @@ function responseIsOK(resp, desc) {
 		return true;
 }
 
-function resetHardwarePoll() {
+function noSerial(resp) {
+	return 'STATUS' in resp && resp.STATUS == 'NO_SERIAL';
+}
+
+function resetPeripherals() {
   var timer = window.setInterval( function() {
 		$.get('/serial_cmd', {CMD: 'RESET'}).done(function (jsonResp) {
-			if(responseIsOK(JSON.parse(jsonResp), 'Hardware reset')) {
+			resp = JSON.parse(jsonResp);
+			if(responseIsOK(resp, 'Hardware reset') || noSerial(resp)) {
 				console.log(jsonResp);
 				window.clearInterval(timer);
 			}
@@ -23,19 +28,19 @@ function resetHardwarePoll() {
 	}, 5000);
 }
 
-function scanHardwarePoll(fCounter) {
-	function scanHardware() {
+function scanPeripherals(fCounter) {
+	var timer = window.setInterval(function () {
 		$.get('/serial_scan').done(function (jsonResp) {
 			scanResult = JSON.parse(jsonResp);
 			if(responseIsOK(scanResult, 'Hardware scan')) {
 				if(!('RESP' in scanResult && scanResult.RESP == 'SCAN'))
 					console.log('Bad SCAN message: ' + jsonResp);
 				else {
-					initCommand = []
+					initCommand = [];
 					for(var i = 0; i < scanResult.I2C_ADDR.length; i++) {
 						var addr = scanResult.I2C_ADDR[i];
 						var ID = sensorIDTable[addr];
-						console.log('in scan found ID=' + ID )
+						console.log('in scan found ID=' + ID );
 						selectSensorControl(ID);
 						sensor = sensorPropsTable[ID];
 						createDashboardEntry(ID);
@@ -43,9 +48,10 @@ function scanHardwarePoll(fCounter) {
 					}
 				}
 			}
+		 	if('STATUS' in scanResult && scanResult.STATUS == 'NO_SERIAL' )
+				window.clearInterval(timer);
 		});
-	}
-	var timer = window.setInterval(scanHardware, 5000);
+	}, 5000);
 }
 
 
@@ -74,32 +80,42 @@ var sensorIDTable = {
 var sensorPropsTable = {
 
 	'MPU6050': {
-		command: {CMD: 'MPU6050', MSEC: 1500},
+		command: {CMD: 'MPU6050', MSEC: 20},
 		signal: [ {
 			name: 'Accelerometer',
 			graphFunc: function(val) {
-				return val == 0 ? 0 : Math.sqrt(val[0]*val[0] + val[1]*val[1] + val[2]*val[2]);
+				return val == 0 ? 0 : Math.sqrt(val[0]*val[0] + val[1]*val[1] + val[2]*val[2]).toFixed(2);
 			},
 			range: { min: 0, max: 50000 }
 		}, {
 			name: 'Gyroscope',
 			graphFunc: function(val) {
-				return val == 0 ? 0 : Math.sqrt(val[3]*val[3] + val[4]*val[4] + val[5]*val[5]);
+				return val == 0 ? 0 : Math.sqrt(val[3]*val[3] + val[4]*val[4] + val[5]*val[5]).toFixed(2);
 			},
 			range: { min: 0, max: 50000 }
 		} ]
 	},
 
 	'BMP180': {
-		command: {CMD: 'BMP180', MSEC: 1500},
+		command: {CMD: 'BMP180', MSEC: 200},
 		signal: [ {
 			name: 'Temperature',
-			graphFunc: function(val) { return val == 0 ? 0 : val[0]; },
+			graphFunc: function(val) { return val == 0 ? 0 : val[0].toFixed(2); },
 			range: { min: 0, max: 50 }
 		}, {
 			name: 'Pressure',
-			graphFunc: function(val) { return val == 0 ? 0 : val[1]; },
+			graphFunc: function(val) { return val == 0 ? 0 : val[1].toFixed(2); },
 			range: { min: 0, max: 1300 }
-	 } ]
- }
+	 	} ]
+ },
+
+	'SLIDEPOT': {
+		command: {CMD: 'SLIDEPOT', MSEC: 100},
+		signal: [ {
+			name: 'Slider',
+			graphFunc: function(val) { return val == 0 ? 0 : Math.round(val[0] * 100 / 2180); },
+			range: { min: 0, max: 100 }
+		} ]
+	}
+
 };

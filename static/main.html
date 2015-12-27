@@ -36,6 +36,8 @@
 <script src="js/dashboard.js"></script>
 <!-- hardware -->
 <script src='js/hardware.js'></script>
+<!-- camera -->
+<script src='js/camera.js'></script>
 
 <!-- main JS file -->
 <script src='js/controls.js'></script>
@@ -45,6 +47,7 @@
 <link href='https://fonts.googleapis.com/css?family=Nunito:300' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" type="text/css" href="lib/gauge-master/css/gauge.css" />
 <link rel="stylesheet" type="text/css" href="css/dashboard.css" />
+<link rel="stylesheet" type="text/css" href="css/camera.css" />
 <link rel='stylesheet' type='text/css' href='css/main.css' />
 </head>
 
@@ -72,7 +75,10 @@
 		<div id='blockly-editor-div' class='content-div'></div>
 		<div id='ace-editor-div' class='content-div'></div>
 		<div id='dashboard-div' class='content-div'><table id='sensors-table'></table></div>
-		<div id='camera-div' class='content-div'></div>
+		<div id='camera-div' class='content-div'>
+			<div id='video-stream-div'><img id='video-stream-img' src=''></div>
+			<button id='camera-button'>Start</button>
+		</div>
 	</div>
 	<!-- sensors right-bar -->
 	<div id='sensors-div'>
@@ -86,6 +92,8 @@
 	</div>
 	<!-- end of screen width arrangement -->
 </div>
+
+
 
 <!-- Blockly toolbox definition -->
 <xml id="toolbox" style="display: none">

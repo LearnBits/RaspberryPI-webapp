@@ -1,7 +1,8 @@
 class Global:
-	
+
 	def __init__(self):
 		self.app        = None
+		self.args       = None
 		self.dispatcher = None
 		self.sandbox    = None
 		self.serial     = None

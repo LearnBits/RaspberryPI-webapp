@@ -24,7 +24,7 @@ body, ol, ul {
 }
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
   screen width arrangement
 	1. tabs   2. content div   3. sensors div
 | tabs 150px |-5- content-div 100% -5-| sensors-div 100px -5-| 10px |
@@ -48,23 +48,23 @@ body, ol, ul {
 	border-right: 5px solid #f2f2f2;
 	border-bottom: 5px solid #f2f2f2;
 }
-/* end of main screen * * * * * * * * * * * * * * * * * * * * * * * * */ 
+/* end of main screen * * * * * * * * * * * * * * * * * * * * * * * * */
 
 
 /* main content */
 .content-div {
-	position: absolute; 
+	position: absolute;
 	top: 5px; left: 5px; bottom: 5px; right: 5px;
 	visibility: hidden;
 }
 #blockly-editor-div {
 	font-family: "Nunito", sans-serif;
 }
-#ace-editor-div { 
+#ace-editor-div {
 	font-size: 14px;
 	border: 1px solid #ddd;
 }
-#dashboard-div { 
+#dashboard-div {
 	border: 1px solid #ddd;
 	background-color: #E2BF14;
 	overflow-x: scroll;
@@ -72,6 +72,7 @@ body, ol, ul {
 #camera-div {
 	border: 1px solid #ddd;
 	background-color: deepskyblue;
+	padding: 15px;
 }
 
 /* TABS */
@@ -109,12 +110,12 @@ body, ol, ul {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Color picker: http://www.w3schools.com/tags/ref_colorpicker.asp
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
- 
+
 .tab-unselected {
 	background-color: #444; /*#aaa;*/
 	/*border-left: 8px solid #64411B;*/
 	border-right: 5px solid #444;
-} 
+}
 /* Unselected colors : 20% on the light/dark scale */
  .tab0#blockly-editor {
 	border-left: 8px solid #991f00 ; /*#660000; #64411B;*/
@@ -131,16 +132,16 @@ body, ol, ul {
 
 /* Selected colors : 40% on the scale */
 .tab-hover#blockly-editor {
-  border-left: 8px solid #ff8080  ; /*darkorange;*/  
+  border-left: 8px solid #ff8080  ; /*darkorange;*/
 }
 .tab-hover#ace-editor {
-  border-left: 8px solid #66cc00;  
+  border-left: 8px solid #66cc00;
 }
 .tab-hover#dashboard {
-  border-left: 8px solid #00e5e6;  
+  border-left: 8px solid #00e5e6;
 }
 .tab-hover#camera {
-  border-left: 8px solid #e600e5;  
+  border-left: 8px solid #e600e5;
 }
 
 /* hilight background: 75% on the scale */
@@ -184,14 +185,9 @@ img.img0 {
 	opacity: 0.5;
 }
 
-/*
 
-#tab-container ul li.selected {
-   border-right: none;
-   background-color: #fff;
-   border-left: 8px solid #006699;
-}
-*/
+
+/*********************************************************/
 
 
 /* Old stuff */
@@ -200,7 +196,7 @@ img.img0 {
 	font-size: 32px;
 	font-weight: bold;
 	color:orange;
-	margin: 
+	margin:
 }
 
 

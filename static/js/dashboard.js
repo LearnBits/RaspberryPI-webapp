@@ -1,8 +1,8 @@
-/* * * * * * * * * * * * *
- *											 *
- * 	Class Sensor				 *
- *											 *
- * * * * * * * * * * * * */
+/* * * * * * * * * * * * * *
+ *											   *
+ * 	Class DashboardEntry   *
+ *											   *
+ * * * * * * * * * * * * * */
 
 
 function DashboardEntry(sigID, signal) {
@@ -31,7 +31,7 @@ function DashboardEntry(sigID, signal) {
 }
 
 DashboardEntry.prototype.setValue = function(value) {
-	var computed_value = this.signal.graphFunc(value).toFixed(2);
+	var computed_value = this.signal.graphFunc(value);
   this.timeSeries.append(new Date().getTime(), computed_value);
 	this.gauge.setValue(computed_value);
 }

@@ -30,8 +30,6 @@ def print_uptime(start_uptime):
 
 def server_warm_up(args):
 	''' Start all threads '''
-	def start_web_app():
-		app.run(host='0.0.0.0', port=args.port, threaded=True, debug=True, use_evalex=False, use_reloader=False)
 	#
 	print 'o-o-o-o-o-o-o-o-o-o-o-o-o-o'
 	print 'o                         o'
@@ -50,6 +48,9 @@ def server_warm_up(args):
 		serial_port_thread.start()
 	#
 	# Run web app
+	def start_web_app():
+		app.run(host='0.0.0.0', port=args.port, threaded=True, debug=True, use_evalex=False, use_reloader=False)
+	#
 	web_app_thread = Thread(target=start_web_app)
 	web_app_thread.start()
 	#
@@ -96,6 +97,7 @@ if __name__ == '__main__':
 	start_uptime = datetime.datetime.strptime(strftime(time_format), time_format)
 	#
 	args = parse_args()
+	g.args = args
 	#
 	server_warm_up(args)
 
