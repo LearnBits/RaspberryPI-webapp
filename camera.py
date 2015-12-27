@@ -25,26 +25,28 @@ class LBVisionProcessor:
 		self.displayed_count  = 0
 		self.processed_frame_event = Event()
 		self.new_frame_event = Event()
-		self.isOSX = True if platform.system() == 'Darwin' else False
 		# TODO also define isRPI
 
 	def turn_on(self):
-		if self.isOSX:
+		if g.is_OSX:
 			''' NOTE: On Mac OS X this command must run in main thread!! '''
 			self.camera = cv2.VideoCapture(0)
-		else:
+		elif g.is_RPI:
 			# Raspberry PI
 			import picamera
 			self.camera = picamera.PiCamera()
-		#self.start()
+		else:
+			print 'Camera turn_on: unsupported platform'
 
 	def turn_off(self):
 		if self.camera != None:
 			self.stop()
-			if self.isOSX:
+			if g.is_OSX:
 				self.camera.release()
-			else:
+			elif g.is_RPI:
 				self.camera.close()
+			else:
+				print 'Camera turn_off: unsupported platform'
 
 	def start(self):
 		self.alive = True
@@ -58,10 +60,13 @@ class LBVisionProcessor:
 		return not (self.alive and g.alive)
 
 	def get_frame_generator(self):
-		if self.isOSX:
+		if g.is_OSX:
 			return webcam_frame_grabber(self)
-		else:
+		elif g.is_RPI:
 			return picamera_frame_grabber(self)
+		else:
+			print 'Camera frame gen: unsupported platform'
+
 
 	def camera_get_frame(self):
 		time.sleep(1.0)
@@ -101,13 +106,11 @@ class LBVisionProcessor:
 			while not self.done():
 				self.processed_frame_event.wait()
 				self.processed_frame_event.clear()
-				#jpeg = cv2.imencode('.jpg', self.processed_frame, [int(cv2.IMWRITE_JPEG_QUALITY), 60])[1].toString()
-				# NEED to take care of Raspberry PI
 				jpeg_buf = array2jpegBuffer(self.processed_frame)
 				stream_data = b'--frame\r\nContent-Type: image/jpeg\r\n\r\n' + jpeg_buf+ b'\r\n'
 				yield stream_data
 				self.displayed_count += 1
-			print 'frame generator done'
+			print 'jpeg streaming done'
 		#
 		return gen
 	'''

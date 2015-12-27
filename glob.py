@@ -8,6 +8,8 @@ class Global:
 		self.serial     = None
 		self.camera     = None
 		self.alive      = True
+		self.is_RPI      = False
+		self.is_OSX     = False
 
 # initialization of global object
 g = Global()

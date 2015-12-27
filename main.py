@@ -6,14 +6,21 @@ from flask      import Flask
 from time       import strftime, sleep
 from sys	    import exit
 from webapp     import app
+from datetime   import datetime
 from dateutil.relativedelta import relativedelta
-import datetime, requests, argparse
+import requests, argparse, hardware
 
 
-
+# VARs
 time_format = '%Y-%m-%d %H:%M:%S'
+start_uptime = None
+#
 
-def print_uptime(start_uptime):
+def start_server():
+	global start_uptime
+	start_uptime = datetime.strptime(strftime(time_format), time_format)
+
+def end_server():
 	# Pretty time print
 	def pprint(diff, units):
 		words = []
@@ -23,7 +30,8 @@ def print_uptime(start_uptime):
 				words.append('%d %s' % (v, u if v == 1 else u + 's'))
 		return ' '.join(words)
 	#
-	end_uptime = datetime.datetime.strptime(strftime(time_format), time_format)
+	global start_uptime
+	end_uptime = datetime.strptime(strftime(time_format), time_format)
 	diff = relativedelta(end_uptime, start_uptime)
 	print 'Total uptime: %s' % pprint(diff, ['month', 'day', 'hour', 'minute', 'second'])
 
@@ -39,6 +47,7 @@ def server_warm_up(args):
 	print '   use_camera  = %s' % args.use_camera
 	print '   use_serial  = %s' % args.use_serial
 	print '   server port = %d' % args.port
+	print '   platform    = %s' % ('OSX' if g.is_OSX else ('RPI' if g.is_RPI else 'Unsupported'))
 	print
 	#
 	# Run serial port
@@ -83,6 +92,7 @@ def server_cool_down(args):
 	#
 	stop_web_app()
 
+
 def parse_args():
 	parser = argparse.ArgumentParser(description='Learnbits application')
 	parser.add_argument('--no-camera', dest='use_camera', action='store_false', default=True, help='disable the camera')
@@ -94,13 +104,13 @@ def parse_args():
 # main starts here
 if __name__ == '__main__':
 	#
-	start_uptime = datetime.datetime.strptime(strftime(time_format), time_format)
-	#
 	args = parse_args()
 	g.args = args
 	#
+	start_server()
+	#
 	server_warm_up(args)
-
+	#
 	''' main idle loop '''
 	try:
 		while g.alive:
@@ -111,6 +121,6 @@ if __name__ == '__main__':
 		''' server shutdown	(^C)'''
 		server_cool_down(args)
 		#
-		print_uptime(start_uptime)
+		end_server()
 		#
 		exit(0)

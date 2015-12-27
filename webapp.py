@@ -4,7 +4,7 @@ from serialport import LBSerialRequest, LBDispatcher
 from camera     import LBVisionProcessor
 from sandbox    import LBSandbox
 from glob       import g
-import json, flask.ext.cors
+import json, flask.ext.cors, math
 
 #--------------------
 
@@ -20,6 +20,7 @@ def init_web_app():
 ''' global var declarations '''
 app = Flask('__name__')
 HTTP_OK = 'OK', 200
+HTTP_ERROR = 'ERROR', 200
 init_web_app()
 
 #---------------
@@ -53,6 +54,19 @@ def serial_cmd():
 		return send_serial_request(request.args.copy())
 	else:
 		return json.dumps({'STATUS':'NO_SERIAL'})
+
+@app.route('/motor')
+def motor():
+	try:
+		if request.args.has_key('right') and request.args.has_key('left'):
+			right = int(request.args['right'])
+			left  = int(request.args['left'])
+			if math.fabs(right) < 256 and math.fabs(left) < 256:
+				return send_serial_request({'CMD':'MOTOR','MOVE':[right,left]})
+	except Exception as e:
+		print 'Motor error: %s' % request.args
+		print 'Exception: %s' % str(e)
+	return json.dumps({'STATUS':'MOTOR_ERROR'})
 
 # Streaming data request from serial port
 # global variables for data streams

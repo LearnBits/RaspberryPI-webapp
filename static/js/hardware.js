@@ -73,26 +73,27 @@ function initSensors(startSamplingFunc) {
 }
 
 var sensorIDTable = {
+	'80' : 'SLIDEPOT',
 	'104': 'MPU6050',
-	'119' : 'BMP180'
+	'119': 'BMP180',
 }
 
 var sensorPropsTable = {
 
 	'MPU6050': {
-		command: {CMD: 'MPU6050', MSEC: 20},
+		command: {CMD: 'MPU6050', MSEC: 30},
 		signal: [ {
 			name: 'Accelerometer',
 			graphFunc: function(val) {
 				return val == 0 ? 0 : Math.sqrt(val[0]*val[0] + val[1]*val[1] + val[2]*val[2]).toFixed(2);
 			},
-			range: { min: 0, max: 50000 }
+			range: { min: 0, max: 57000 } // > 2^15 (32768) * sqrt(3) (1.732)
 		}, {
 			name: 'Gyroscope',
 			graphFunc: function(val) {
 				return val == 0 ? 0 : Math.sqrt(val[3]*val[3] + val[4]*val[4] + val[5]*val[5]).toFixed(2);
 			},
-			range: { min: 0, max: 50000 }
+			range: { min: 0, max: 57000 }
 		} ]
 	},
 
