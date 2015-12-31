@@ -34,15 +34,20 @@ class LBSerialPort:
 	def open(self):
 		try:
 			self.serial = Serial(port=self.port, baudrate=self.baudrate, timeout=5)
-			#self.serial.flushInput()
-			#self.serial.flushOutput()
+			self.serial.flushInput()
+			self.serial.flushOutput()
 			self.is_open = True
+			Timer(1.0, g.api.reset_shield).start()
 			debug('Serial port is open')
+			return True
 			#time.sleep(0.5)
 		except OSError as e:
 			debug('Cannot open the serial port: %s' % str(e))
 			debug('Retrying in 5 sec...')
-			time.sleep(5.0)
+			self.is_open = False
+			Timer(5.0, self.open).start()
+			return False
+
 	#
 	def close(self):
 		try:
@@ -76,7 +81,7 @@ class LBSerialPort:
 				queue = LBSerialRequest.queue_store[msg['REQ_ID']]
 				queue.put(json_msg)
 			elif msg.has_key('SAMPLE_ID'): #data streaming
-				g.sandbox.fire_event('SAMPLE', msg)
+				g.sandbox.fire_event('SAMPLE', msg) # object, not json
 				g.dispatcher.fire_event(json_msg)
 			else:
 				raise SerialException('Response is missing a REQ_ID or SAMPLE_ID')
@@ -143,8 +148,8 @@ class LBDispatcher:
 		self.listeners.remove(queue)
 
 	def fire_event(self, data):
-			for q in self.listeners:
-				q.put(data)
+		for q in self.listeners:
+			q.put(data)
   #...
 
 

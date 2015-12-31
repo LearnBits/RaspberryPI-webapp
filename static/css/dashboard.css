@@ -13,7 +13,7 @@
 	font-size: 14pt;
 }
 #sensors-table .gauge-div {
-	background-color: #8a2b61;
+	background-color: #A71170; /*#8a2b61;*/
 	max-height: 200px;
 }
 

@@ -7,7 +7,7 @@
 function Gauge(container, opts) {
 
     var value, angle, angleRangeSize,
-        dialInd, svg, errList, NAMESPACE_URI, CLASS_NAME, 
+        dialInd, svg, errList, NAMESPACE_URI, CLASS_NAME,
 				needleElem, arc1Elem, arc2Elem, gaugeLabelElem;
 
     this.lastError = function () {
@@ -47,8 +47,8 @@ function Gauge(container, opts) {
         }
         return errList;
     }
-	
-		
+
+
     function setOptions(default_opts) {
         var opt;
         opts = opts || {};
@@ -111,12 +111,12 @@ function Gauge(container, opts) {
         return d.join("");
     }
 
-   
-		function drawGaugeBase() {			
+
+		function drawGaugeBase() {
 			// 1) Value
 			arc1Elem = createElement('path', {}, 'arc_value');
-			svg.appendChild(arc1Elem);   
-			
+			svg.appendChild(arc1Elem);
+
 			// 2) Range
 			arc2Elem = createElement('path', {}, 'arc_range');
 			svg.appendChild(arc2Elem);
@@ -124,7 +124,7 @@ function Gauge(container, opts) {
 			// 3) Needle
 			needleElem = createElement('polygon', {}, 'meter_needle');
 			svg.appendChild(needleElem);
-			
+
 			// 4) Needle circle
 			var attrs = {
 				cx: dialInd.cx,
@@ -133,13 +133,13 @@ function Gauge(container, opts) {
       };
 			var circle = createElement('circle', attrs, 'needle_base');
 			svg.appendChild(circle);
-			
+
 			// 5) Label
 			gaugeLabelElem = createElement('text', {}, 'gauge_label');
 			gaugeLabelElem.textContent = '';
 			svg.appendChild(gaugeLabelElem);
 		}
-	
+
 		function drawDynamicArc() {
 			var arc_params = createArcParameters(dialInd.cx, dialInd.cy, dialInd.r, dialInd.sAngle, angle);
    		arc1Elem.setAttribute('d', arc_params);
@@ -161,13 +161,13 @@ function Gauge(container, opts) {
     }
 
 		function updateGaugeLabel() {
-			var p = polarToCartesian(dialInd.cx, dialInd.cy, 
+			var p = polarToCartesian(dialInd.cx, dialInd.cy,
 															 dialInd.r + opts.meter_needle.interval + opts.tickLabel.interval, angle);
 			gaugeLabelElem.setAttribute('x', dialInd.cx);
 			gaugeLabelElem.setAttribute('y', dialInd.cy + 35);
 			gaugeLabelElem.textContent = value;
 		}
-	
+
     //Set angle value on dial indicator
     //angle: an angle in degrees
     function setAngle(a) {
@@ -193,7 +193,7 @@ function Gauge(container, opts) {
             setAngle(angle);
         }
     };
-	
+
     // vars init
 		opts = setOptions(Gauge.default_opts);
     NAMESPACE_URI = "http://www.w3.org/2000/svg";
@@ -214,11 +214,17 @@ function Gauge(container, opts) {
     angle = calcAngle(value);
     container.innerHTML = Gauge.svgMarkup;
     svg = container.getElementsByTagName("svg")[0];
-		dialInd.cx = svg.clientWidth * 0.5;
-		// Assume that sAngle and eAngle are symetric
+    /** Determine geometry of Gauge
+        Assume that sAngle and eAngle are symetric
+        cx, cy is a bit below center of gravity
+        r is calculated so that the gauge displays an aestethics padding
+    */
 		var alpha = (opts.dial_indicator.sAngle - 180) * 3.1415 / 180;
+    dialInd.cx = svg.clientWidth * 0.5;
 		dialInd.cy = (svg.clientHeight + (opts.dial_indicator.r * (1 - Math.sin(alpha)))) * 0.5;
-	
+    var padding = 20;
+    dialInd.r = svg.clientWidth / 2 - (padding + opts.meter_needle.interval);
+
 		drawGaugeBase();
 }
 

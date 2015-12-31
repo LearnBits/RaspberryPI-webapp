@@ -4,8 +4,8 @@
 */
 
 svg.gauge {
-    width: 260px;
-    height: 200px;
+    width: 195px;
+    height: 150px;
 }
 
 svg.gauge path.dial_indicator {

@@ -3,6 +3,7 @@ from flask      import Flask, request, Response, redirect
 from serialport import LBSerialRequest, LBDispatcher
 from camera     import LBVisionProcessor
 from sandbox    import LBSandbox
+from api		import LBShieldAPI
 from glob       import g
 import json, flask.ext.cors, math
 
@@ -31,42 +32,43 @@ init_web_app()
 def hello():
 	return redirect('/static/main.html')
 
-# Synchronous serial requests
-def send_serial_request(data):
-	if g.alive:
-		req = LBSerialRequest(data)
-		return req.get_ack() if req.is_ok else json.dumps({'STATUS':'SERIAL_ERROR'})
-	else:
-		return json.dumps({'STATUS':'SERVER_SHUTDOWN'})
-
 @app.route('/serial_scan')
 def scan():
-	if g.args.use_serial:
-		return send_serial_request({'CMD':'SCAN'})
-	else:
-		return json.dumps({'STATUS':'NO_SERIAL'})
+	return g.api.send_serial_request({'CMD':'SCAN'})
 
 @app.route('/serial_cmd')
 def serial_cmd():
 	# we're going to add an REQ_ID therefore
 	# a copy is needed b/c request.args is immutable
-	if g.args.use_serial:
-		return send_serial_request(request.args.copy())
-	else:
-		return json.dumps({'STATUS':'NO_SERIAL'})
+	return g.api.send_serial_request(request.args.copy())
 
+# /motor?right=32&left=32
 @app.route('/motor')
 def motor():
+	right = left = None
 	try:
-		if request.args.has_key('right') and request.args.has_key('left'):
-			right = int(request.args['right'])
-			left  = int(request.args['left'])
-			if math.fabs(right) < 256 and math.fabs(left) < 256:
-				return send_serial_request({'CMD':'MOTOR','MOVE':[right,left]})
+		right = int(request.args['right'])
+		left  = int(request.args['left'])
+		ret = g.api.motor(right, left)
+		return json.dumps(ret)
 	except Exception as e:
-		print 'Motor error: %s' % request.args
+		print 'Motor error: %s' % str(request.args)
 		print 'Exception: %s' % str(e)
-	return json.dumps({'STATUS':'MOTOR_ERROR'})
+		return json.dumps({'STATUS':'MOTOR_ERROR'})
+
+# /led_bar8?values=11,12,13,14,15,16,17,18
+@app.route('/led_bar8')
+def led():
+	led_values = None
+	try:
+		led_values = map(lambda x: int(x), request.args['values'].split(','))
+		ret = g.api.led_bar8(led_values)
+		return json.dumps(ret)
+	except Exception as e:
+		print 'LED_BAR8 error: %s' % request.args
+		print 'Exception: %s' % str(e)
+	return json.dumps({'STATUS':'LED_BAR8_ERROR'})
+
 
 # Streaming data request from serial port
 # global variables for data streams
@@ -86,13 +88,13 @@ def start_sampling():
 		stream_alive[stream_id] = True
 		stream_count +=1
 		# sampling loop
-		while stream_alive[stream_id] and g.serial.is_open and g.alive:
+		while stream_alive[stream_id] and g.alive:
 			try:
 				json_sample = sampling_queue.get(timeout=5)
-				print 'Sending SSE sample %s' % json_sample
+				#print 'Sending SSE sample %s' % json_sample
 				yield 'data: %s\n\n' % json_sample
 			except Empty as e:
-				print 'Queue error in streaming data %s' % str(e)
+				print 'Empty queue in streaming data %s. Possibly timed out (5s)' % str(e)
 		#
 		# end of streaming thread
 		yield 'event: close\n' + 'data: {"time": "now"}\n\n'
@@ -104,7 +106,7 @@ def start_sampling():
 @app.route('/stop_sampling')
 def stop_sampling():
 	global stream_alive
-	stream_id = int(request.args['stream_id'])
+	stream_id = int(request.args['STREAM_ID'])
 	print 'got stop_Stampling request for %d' % stream_id
 	stream_alive[stream_id] = False
 	return HTTP_OK

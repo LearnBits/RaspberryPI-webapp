@@ -36,7 +36,7 @@ def end_server():
 	print 'Total uptime: %s' % pprint(diff, ['month', 'day', 'hour', 'minute', 'second'])
 
 
-def server_warm_up(args):
+def server_warm_up():
 	''' Start all threads '''
 	#
 	print 'o-o-o-o-o-o-o-o-o-o-o-o-o-o'
@@ -44,36 +44,36 @@ def server_warm_up(args):
 	print 'o  Learnbits application  o'
 	print 'o                         o'
 	print 'o-o-o-o-o-o-o-o-o-o-o-o-o-o'
-	print '   use_camera  = %s' % args.use_camera
-	print '   use_serial  = %s' % args.use_serial
-	print '   server port = %d' % args.port
+	print '   use_camera  = %s' % g.config.use_camera
+	print '   use_serial  = %s' % g.config.use_serial
+	print '   server port = %d' % g.config.port
 	print '   platform    = %s' % ('OSX' if g.is_OSX else ('RPI' if g.is_RPI else 'Unsupported'))
 	print
 	#
 	# Run serial port
-	if args.use_serial:
+	if g.config.use_serial:
 		from serialport import LBSerialPort
 		serial_port_thread = Thread(target=g.serial.forever_loop)
 		serial_port_thread.start()
 	#
 	# Run web app
 	def start_web_app():
-		app.run(host='0.0.0.0', port=args.port, threaded=True, debug=True, use_evalex=False, use_reloader=False)
+		app.run(host='0.0.0.0', port=g.config.port, threaded=True, debug=True, use_evalex=False, use_reloader=False)
 	#
 	web_app_thread = Thread(target=start_web_app)
 	web_app_thread.start()
 	#
 	# Open video camera # (OS X bug: must be done in the main thread)
-	if args.use_camera:
+	if g.config.use_camera:
 		from camera import LBVisionProcessor
 		g.camera.turn_on()
 
 
-def server_cool_down(args):
+def server_cool_down():
 	''' Gracefully terminate all running threads '''
 	def stop_web_app():
 		# wait 3 secs to give time to clients to close their connections
-		Timer(3.0, requests.post, args=('http://localhost:%d/shutdown' % args.port,)).start()
+		Timer(3.0, requests.post, args=('http://localhost:%d/shutdown' % g.config.port,)).start()
 		sleep(3.5) # wait until flask server shutdown
 	#
 	print
@@ -87,7 +87,7 @@ def server_cool_down(args):
 	#
 	g.sandbox.fire_event('SHUTDOWN')
 	#
-	if args.use_camera:
+	if g.config.use_camera:
 		g.camera.turn_off()
 	#
 	stop_web_app()
@@ -98,18 +98,16 @@ def parse_args():
 	parser.add_argument('--no-camera', dest='use_camera', action='store_false', default=True, help='disable the camera')
 	parser.add_argument('--no-serial', dest='use_serial', action='store_false', default=True, help='disable the serial port')
 	parser.add_argument('--port', dest='port',  action='store', type=int,       default=8080, help='http server port')
-	args = parser.parse_args()
-	return args
+	return parser.parse_args()
 
 # main starts here
 if __name__ == '__main__':
 	#
-	args = parse_args()
-	g.args = args
+	g.config = parse_args()
 	#
 	start_server()
 	#
-	server_warm_up(args)
+	server_warm_up()
 	#
 	''' main idle loop '''
 	try:
@@ -119,7 +117,7 @@ if __name__ == '__main__':
 		print 'Got exception %s' % str(e)
 	finally:
 		''' server shutdown	(^C)'''
-		server_cool_down(args)
+		server_cool_down()
 		#
 		end_server()
 		#

@@ -108,15 +108,14 @@ var defaultOpts = {
 		timeSeries: {},
 		gauge: {}
 }
-var dashboard = {}
 
 function createDashboardEntry(sensorID) {
 	sensor = sensorPropsTable[sensorID];
 	for(var i = 0; i < sensor.signal.length; i++) {
 		var sigID = `${sensorID}-${sensor.signal[i].name}`;
-		if(!(sigID in dashboard)) {
-			dashboard[sigID] = new DashboardEntry(sigID, sensor.signal[i]);
-			dashboard[sigID].setValue(0);
+		if(!(sigID in app.dashboard)) {
+			app.dashboard[sigID] = new DashboardEntry(sigID, sensor.signal[i]);
+			app.dashboard[sigID].setValue(0);
 		}
 		else
 			console.log(`${sigID} already exists in the dashboard`);
@@ -129,11 +128,8 @@ function createDashboardEntry(sensorID) {
  *											 *
  * * * * * * * * * * * * */
 
-var sse = null;
-var stream_id = null;
-
 function toggleSampling() {
-	if(!sse) {
+	if(!app.sseSocket) {
 		console.log('init sampling');
 		initSensors(startSampling);
 	}
@@ -141,40 +137,44 @@ function toggleSampling() {
 		stopSampling();
 }
 
-function plotSample(json_data) {
-	samplingData = JSON.parse(json_data);
+function plotDashboardSample(samplingData) {
 	sensor = sensorPropsTable[samplingData.SAMPLE_ID];
 	console.log(`Sample: ${samplingData.SAMPLE_ID}, ${samplingData.VAL.toString()}`);
 	for(var i = 0; i < sensor.signal.length; i++) {
 		var sigID = `${samplingData.SAMPLE_ID}-${sensor.signal[i].name}`;
-		dashboard[sigID].setValue(samplingData.VAL);
+		app.dashboard[sigID].setValue(samplingData.VAL);
 	}
 }
 
 function startSampling() {
-	sse = new EventSource('/start_sampling');
-	console.log('sse created');
-	sse.onmessage = function(message) {
-		plotSample(message.data);
+	app.sseSocket = new EventSource('/start_sampling');
+	console.log('app.sseSocket created');
+
+	app.sseSocket.onmessage = function(json_message) {
+		samplingData = JSON.parse(json_message.data);
+		if(samplingData.SAMPLE_ID != 'CAMERA')
+			plotDashboardSample(samplingData);
+		else
+			printComputerVisionResults(samplingData);
 	}
-	sse.addEventListener('start', function(message) {
+	app.sseSocket.addEventListener('start', function(message) {
 		//console.log(`message.data=${message.data}`);
-		stream_id = message.data;
-		//console.log(`stream_id=${stream_id}`);
+		app.streamId = message.data;
+		//console.log(`app.streamId=${app.streamId}`);
 	});
-	sse.addEventListener('close', function(message) {
-		sse.close();
-		sse = null;
-		console.log(`close sse for stream ${stream_id}`);
+	app.sseSocket.addEventListener('close', function(message) {
+		app.sseSocket.close();
+		app.sseSocket = null;
+		console.log(`close app.sseSocket for stream ${app.streamId}`);
 	});
-	sse.onerror = function(e) {
+	app.sseSocket.onerror = function(e) {
 		console.log(`Eventsource failed: ${e.type}`);
 	}
 }
 
 function stopSampling() {
-	$.get('/stop_sampling', {stream_id: stream_id}).done(function (jsonResp) {
-		console.log(`closing stream ${stream_id}`);
+	$.get('/stop_sampling', {STREAM_ID: app.streamId}).done(function (jsonResp) {
+		console.log(`closing stream ${app.streamId}`);
 	});
 }
 

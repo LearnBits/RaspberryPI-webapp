@@ -5,6 +5,7 @@ class Global:
 		self.args       = None
 		self.dispatcher = None
 		self.sandbox    = None
+		self.api = None
 		self.serial     = None
 		self.camera     = None
 		self.alive      = True

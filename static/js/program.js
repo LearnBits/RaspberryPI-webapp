@@ -105,6 +105,9 @@ function initBlockly() {
 		});
 }
 
+
+// LED: color table with 139 values
+// See http://www.rapidtables.com/web/color/RGB_Color.htm
 /*
 var workspace = null;
 

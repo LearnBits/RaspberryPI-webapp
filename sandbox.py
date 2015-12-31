@@ -5,16 +5,16 @@ from glob import g
 import json
 
 class LBSamplingEvent:
-  #
+  	#
 	def __init__(self):
 		self.event =  Event()
 		self.event.clear()
 		self.result = None
-  #
+  	#
 	def set(self, sample):
 		self.result = sample
 		self.event.set()
-  #
+  	#
 	def get(self):
 		self.event.wait()
 		self.event.clear()
@@ -22,7 +22,7 @@ class LBSamplingEvent:
 #...
 
 class LBSandbox:
-  #
+  	#
 	def __init__(self):
 		self.program = ''
 		self.pid = 0 # the current running program
@@ -30,17 +30,17 @@ class LBSandbox:
 		self.event = LBSamplingEvent()
 		self.rlock = RLock()
 	#
-	def fire_event(self, event, data=None):
+	def fire_event(self, event_type, data=None):
 		if self.running[self.pid]:
-			if event == 'SAMPLE':
+			if event_type == 'SAMPLE':
 				self.event.set(data)
-			elif event == 'SHUTDOWN':
+			elif event_type == 'SHUTDOWN':
 				self.event.set(None) # unblock if waiting in get_sample()
 				self.stop.program()
-  #
+  	#
 	def get_sample(self):
 		return self.event.get()
-  #
+  	#
 	def run_program(self, program):
 		#	Must lock this critical portion
 		# to make sure that only one program runs at a given time
@@ -50,10 +50,10 @@ class LBSandbox:
 			self.pid += 1
 			self.running[self.pid] = False
 			Thread(target=self.program_loop, args=(self.pid,)).start()
-			self.wait()
+			self.wait_for_new_thread()
 			print 'program %d confirmed' % self.pid
 	#
-	def wait(self):		# wait for new thread to start
+	def wait_for_new_thread(self):
 		while not self.running[self.pid]:
 			sleep(0.1)
 	#
@@ -70,10 +70,12 @@ class LBSandbox:
 		# garbage collection
 		del self.running[my_pid]
 		print 'program %d ended' % my_pid
-  #
+  	#
 	def stop_program(self):
 		with self.rlock:
 			self.running[self.pid] = False
+
+
 #...
 
 ''' ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~

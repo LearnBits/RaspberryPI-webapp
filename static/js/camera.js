@@ -1,8 +1,6 @@
-var camera = false;
-
 function toggleCamera() {
-  console.log(`togglecamera: camera=${camera}`);
-  if(camera)
+  console.log(`togglecamera: camera=${app.cameraIsON}`);
+  if(app.cameraIsON)
     stop_camera();
   else
     start_camera();
@@ -14,7 +12,7 @@ function start_camera() {
 		if(msg == 'OK' ) {
       $('#video-stream-img').attr('src', '/camera_stream');
       $('#camera-button').text('Stop');
-      camera = true;
+      app.cameraIsON = true;
     }
 	});
 }
@@ -23,9 +21,16 @@ function stop_camera() {
   console.log('stop_camera');
   $.get('/stop_camera').done(function (msg) {
 		if(msg == 'OK' ) {
-      $('#video-stream-img').attr('src', '');
       $('#camera-button').text('Start');
-      camera = false;
+      app.cameraIsON = false;
+      $('#video-stream-img').attr('src', '');
+      /*window.setTimeout( function() {
+        $('#video-stream-img').attr('src', '');
+      }, 1000);*/
     }
 	});
+}
+
+function printComputerVisionResults(samplingData) {
+  console.log(samplingData);
 }

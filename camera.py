@@ -5,7 +5,7 @@ from compvision.jpeg import *
 from threading import Thread, Event
 from glob import g
 from flask import jsonify
-import cv2, time, platform
+import cv2, time, platform, json
 
 fontFace = cv2.FONT_HERSHEY_SIMPLEX
 fontScale = 0.4
@@ -88,6 +88,9 @@ class LBVisionProcessor:
 			self.drawInfo()
 			self.processed_count += 1
 			self.processed_frame_event.set()
+			if len(self.result) > 0:
+				# result is of type numpy.ndarray
+				g.sandbox.fire_event('SAMPLE', {'SAMPLE_ID': 'CAMERA','VAL': self.result.tolist()})
 		print 'Thread camera_process_frame done.'
 
 	def drawInfo(self):
