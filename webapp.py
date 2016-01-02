@@ -49,8 +49,8 @@ def motor():
 	try:
 		right = int(request.args['right'])
 		left  = int(request.args['left'])
-		ret = g.api.motor(right, left)
-		return json.dumps(ret)
+		ret_val = g.api.motor(right, left)
+		return json.dumps(ret_val)
 	except Exception as e:
 		print 'Motor error: %s' % str(request.args)
 		print 'Exception: %s' % str(e)
@@ -62,12 +62,12 @@ def led():
 	led_values = None
 	try:
 		led_values = map(lambda x: int(x), request.args['values'].split(','))
-		ret = g.api.led_bar8(led_values)
-		return json.dumps(ret)
+		ret_val = g.api.led_bar8(led_values)
+		return json.dumps(ret_val)
 	except Exception as e:
 		print 'LED_BAR8 error: %s' % request.args
 		print 'Exception: %s' % str(e)
-	return json.dumps({'STATUS':'LED_BAR8_ERROR'})
+		return json.dumps({'STATUS':'LED_BAR8_ERROR'})
 
 
 # Streaming data request from serial port
@@ -136,7 +136,6 @@ def video_feed():
 def run():
 	# Format of /upload POST request
 	# author (str), date (str), program (str)
-  #
 	p = str(request.form['program'])
 	g.sandbox.run_program(p)
 	return HTTP_OK
@@ -146,6 +145,8 @@ def stop():
 	g.sandbox.stop_program()
 	return HTTP_OK
 
+# Server shutdown_func
+# Can only be done via a HTTP request
 @app.route('/shutdown', methods=['POST'])
 def shutdown():
 	shutdown_func = request.environ.get('werkzeug.server.shutdown')

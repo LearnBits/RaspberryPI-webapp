@@ -96,12 +96,14 @@ class LBVisionProcessor:
 	def drawInfo(self):
 		if self.decorate:
 			# background white rectangle (I measured the box manually :-)
-			cv2.rectangle(self.processed_frame, (5, 1), (265, 13), (244, 244, 244), -1)
+			#cv2.rectangle(self.processed_frame, (5, 1), (265, 13), (244, 244, 244), -1)
 			# frame number and % of dropped frames
 			text = 'frame: %d    (%f - %f)' % (self.raw_frame_count, (float(self.processed_count) / self.raw_frame_count), (float(self.displayed_count) / self.raw_frame_count))
-			cv2.putText(self.processed_frame, text = text, org = (10, 10), fontFace = fontFace, fontScale = fontScale, color = (139, 139, 0), thickness = 1)
+			size, baseline = cv2.getTextSize(text, fontFace, fontScale, thickness=1)
+			cv2.rectangle(self.processed_frame, (10, 10+baseline), (10+size[0], 10-size[1]), (100, 220, 220), -1)
+			cv2.putText(self.processed_frame, text = text, org = (10, 10), fontFace=fontFace, fontScale=fontScale, color = (139, 139, 0), thickness = 1)
 			# running marker
-			cv2.putText(self.processed_frame, text = "||", org = (10 + 10 * ((self.raw_frame_count % 10) + 1), 30 + 10 * ((self.raw_frame_count % 10) + 1)), fontFace = fontFace, fontScale = 0.3, color = (0, 0, 255))
+			cv2.putText(self.processed_frame, text = "||", org = (10 + 10 * ((self.raw_frame_count % 10) + 1), 30 + 10 * ((self.raw_frame_count % 10) + 1)), fontFace=fontFace, fontScale = 0.3, color = (0, 0, 255))
 
 	def get_jpeg_stream_generator(self):
 		#
