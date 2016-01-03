@@ -1,6 +1,4 @@
-import re
-import platform
-from glob import g
+import re, platform
 
 def pi_version():
     """Detect the version of the Raspberry Pi.  Returns either 1, 2 or
@@ -31,6 +29,3 @@ def pi_version():
 
 def is_OSX():
     return (platform.system() == 'Darwin')
-
-g.is_OSX = is_OSX()
-g.is_RPI = (not g.is_OSX) and (pi_version() is not None)

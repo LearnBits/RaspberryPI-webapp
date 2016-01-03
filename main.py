@@ -19,6 +19,7 @@ start_uptime = None
 def start_server():
 	global start_uptime
 	start_uptime = datetime.strptime(strftime(time_format), time_format)
+	g.check_supported_platform()
 
 def end_server():
 	# Pretty time print
@@ -36,7 +37,7 @@ def end_server():
 	print 'Total uptime: %s' % pprint(diff, ['month', 'day', 'hour', 'minute', 'second'])
 
 
-def server_warm_up():
+def warm_up():
 	''' Start all threads '''
 	#
 	print 'o-o-o-o-o-o-o-o-o-o-o-o-o-o'
@@ -44,17 +45,19 @@ def server_warm_up():
 	print 'o  Learnbits application  o'
 	print 'o                         o'
 	print 'o-o-o-o-o-o-o-o-o-o-o-o-o-o'
-	print '   use_camera  = %s' % g.config.use_camera
-	print '   use_serial  = %s' % g.config.use_serial
-	print '   server port = %d' % g.config.port
-	print '   platform    = %s' % ('OSX' if g.is_OSX else ('RPI' if g.is_RPI else 'Unsupported'))
-	print
+	print '   platform     = %s' % ('OSX' if g.is_OSX else ('RPI' if g.is_RPI else 'Unsupported'))
+	print '   use camera   = %s' % g.config.use_camera
+	print '   use serial   = %s' % g.config.use_serial
+	print '   server port  = %d' % g.config.port
 	#
 	# Run serial port
 	if g.config.use_serial:
 		from serialport import LBSerialPort
+		g.serial.open()
 		serial_port_thread = Thread(target=g.serial.forever_loop)
 		serial_port_thread.start()
+	#
+	print
 	#
 	# Run web app
 	def start_web_app():
@@ -69,7 +72,7 @@ def server_warm_up():
 		g.camera.turn_on()
 
 
-def server_cool_down():
+def cool_down():
 	''' Gracefully terminate all running threads '''
 	def stop_web_app():
 		# wait 3 secs to give time to clients to close their connections
@@ -107,7 +110,7 @@ if __name__ == '__main__':
 	#
 	start_server()
 	#
-	server_warm_up()
+	warm_up()
 	#
 	''' main idle loop '''
 	try:
@@ -117,7 +120,7 @@ if __name__ == '__main__':
 		print 'Got exception %s' % str(e)
 	finally:
 		''' server shutdown	(^C)'''
-		server_cool_down()
+		cool_down()
 		#
 		end_server()
 		#

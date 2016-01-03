@@ -1,5 +1,5 @@
 from serial     import Serial, SerialException
-from threading  import Lock
+from threading  import Lock, Timer
 from Queue      import Queue
 from glob       import g
 #from dispatcher import LBDispatcher
@@ -19,21 +19,24 @@ class LBSerialPort:
 
 	@staticmethod
 	def get_params():
-		if platform.system() == 'Darwin':
-			# Mac OS X
-			return ('/dev/cu.usbmodem1421', 115200)
-		else:
+		if g.is_RPI:
 			# Raspberry PI
 			return ('/dev/ttyAMA0', 57600)
+		elif g.is_OSX:
+			# Mac OS X
+			return ('/dev/cu.usbmodem1421', 115200)
 	#
 	def __init__(self):
-		self.serial = None
+		self.timeout = 5
 		self.port, self.baudrate = LBSerialPort.get_params()
+		self.serial = None
 		self.is_open = False
   #
 	def open(self):
+		print '   serial port  = %s' % self.port
+		print '   baudrate     = %d' % self.baudrate
 		try:
-			self.serial = Serial(port=self.port, baudrate=self.baudrate, timeout=5)
+			self.serial = Serial(port=self.port, baudrate=self.baudrate, timeout=self.timeout)
 			self.serial.flushInput()
 			self.serial.flushOutput()
 			self.is_open = True
@@ -59,8 +62,6 @@ class LBSerialPort:
 			self.is_open = False
 	#
 	def write(self, cmd):
-		if not self.is_open:
-			self.open()
 		try:
 			if self.is_open:
 				json_msg = 'json:' + json.dumps(cmd) + '\n'
@@ -76,6 +77,7 @@ class LBSerialPort:
 	def forever_loop(self):
 		#
 		def dispatch(json_msg):
+			print 'dispatch %s' % json_msg
 			msg = json.loads(json_msg)
 			if msg.has_key('REQ_ID'): # regular command
 				queue = LBSerialRequest.queue_store[msg['REQ_ID']]
@@ -87,15 +89,13 @@ class LBSerialPort:
 				raise SerialException('Response is missing a REQ_ID or SAMPLE_ID')
 		#
 		while g.alive:
-			if not self.is_open:
-				self.open()
-			else:
-				try:
-					s = self.serial.readline()
-					if len(s) > 0: dispatch(s.strip())
-				except SerialException as e:
-					debug('UART: Exception %s, (%s)' % (str(e), str(type(e))))
-					self.close()
+			try:
+				s = self.serial.readline()
+				if len(s) > 0:
+					dispatch(s.strip())
+			except SerialException as e:
+				debug('UART: Exception %s, (%s)' % (str(e), str(type(e))))
+				self.close()
 		#
 		print 'Serial port thread ... done'
 
