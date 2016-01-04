@@ -1,4 +1,5 @@
-body, ol, ul {
+/*body, ol, ul {*/
+body {
 	margin: 0; padding: 0;
 }
 
@@ -66,17 +67,33 @@ body, ol, ul {
 }
 #dashboard-div {
 	border: 1px solid #ddd;
-	background-color: #E2BF14;
+	background-color: deepskyblue;
 	overflow-x: scroll;
 }
-#camera-div {
+#commands-div {
 	border: 1px solid #ddd;
-	background-color: deepskyblue;
+	background-color: #B7B8A9;
+	font-family: Nunito;
+}
+#commands-icons-div {
+	position: absolute;
+	top: 0px; left: 0px; bottom: 0px; width: 80px;
+	background-color: #BACCAA;
+}
+.command-icon {
+	position: absolute;
+	left: 15px;
+	width: 48px;
+}
+#commands-controls-div {
+	position: absolute;
+	top: 0px; left: 100px; bottom: 0px; right: 0px;
 	padding: 15px;
 }
 
 /* TABS */
 #tabs-div ul {
+	margin: 0; padding: 0;
 	list-style: none;
 	text-align: center;
 	width: 100%;
@@ -88,6 +105,7 @@ body, ol, ul {
 }
 /* Sensors */
 #sensors-div ul {
+	margin: 0; padding: 0;
 	list-style: none;
 	text-align: center;
 	width: 100%;
@@ -121,27 +139,27 @@ body, ol, ul {
 	border-left: 8px solid #991f00 ; /*#660000; #64411B;*/
 }
 .tab0#ace-editor {
-	border-left: 8px solid #008800;
+	border-left: 8px solid #990073;
 }
 .tab0#dashboard {
 	border-left: 8px solid #008888;
 }
-.tab0#camera {
-	border-left: 8px solid #990073 ;
+.tab0#commands {
+	border-left: 8px solid #008800;
 }
 
 /* Selected colors : 40% on the scale */
 .tab-hover#blockly-editor {
-  border-left: 8px solid #ff8080  ; /*darkorange;*/
+  border-left: 8px solid #EE1D03  ; /*darkorange;*/
 }
 .tab-hover#ace-editor {
-  border-left: 8px solid #66cc00;
+  border-left: 8px solid #e600e5;
 }
 .tab-hover#dashboard {
   border-left: 8px solid #00e5e6;
 }
-.tab-hover#camera {
-  border-left: 8px solid #e600e5;
+.tab-hover#commands {
+  border-left: 8px solid #66cc00;
 }
 
 /* hilight background: 75% on the scale */
@@ -165,10 +183,10 @@ body, ol, ul {
 .dashboard#content-wrapper-div {
 }
 /**/
-.tab1#camera {
+.tab1#commands {
 	background-color: #f2f2f2 ;
 }
-.camera#content-wrapper-div {
+.commands#content-wrapper-div {
 }
 
 
@@ -226,11 +244,11 @@ img.img0 {
 	background-color: #80ffff;
 }
 
-.tab1#camera {
+.tab1#commands {
 	background: linear-gradient(90deg, white, white 30%, #d580ff  );
 	border-right: 5px solid #d580ff ;
 }
-.camera#content-wrapper-div {
+.commands#content-wrapper-div {
 	background-color: #d580ff;
 }
 */

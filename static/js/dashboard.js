@@ -154,8 +154,6 @@ function startSampling() {
 		samplingData = JSON.parse(json_message.data);
 		if(samplingData.SAMPLE_ID != 'CAMERA')
 			plotDashboardSample(samplingData);
-		else
-			printComputerVisionResults(samplingData);
 	}
 	app.sseSocket.addEventListener('start', function(message) {
 		//console.log(`message.data=${message.data}`);

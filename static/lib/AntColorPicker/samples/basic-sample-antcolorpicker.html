@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Basic sample of AntColorPicker - AntProduction</title>
+    <meta content="Basci sample of AntColorPicker, the jQuery color picker plug-in of AntProduction." name="description">
+    <meta content="antproduction, jquery plug in, jquery, turnkey jquery library, AntColorPicker, color picker" name="keywords">
+    <meta name="author" content="Antrax2013">
+
+    <!-- hightLight Syntaxe -->
+    <link rel="stylesheet" href="http://yandex.st/highlightjs/8.0/styles/default.min.css">
+    <script src="http://yandex.st/highlightjs/8.0/highlight.min.js"></script>
+
+    <link href="../public/css/style.css" rel="stylesheet">
+    <link href="../public/css/AntColorPicker.css" rel="stylesheet">
+
+
+    <script type="text/javascript" src="../public/js/libs/external-libs/jquery-1.10.1.min.js"></script>
+    <script type="text/javascript" src="../public/js/libs/external-libs/jquery-ui-1.10.4.min.js"></script>
+    <script type="text/javascript" src="../public/js/libs/external-libs/google-analytics.js"></script>
+    <script type="text/javascript" src="../public/js/libs/AntColorPicker.js"></script>
+    <script type="text/javascript">
+
+        //Sources code hightLight syntaxe
+        hljs.initHighlightingOnLoad();
+
+        $(document).ready(function() {
+            //initialisation of AntColorPicker with customisation of labels
+            $("#colorPicker").AntColorPicker(
+                    {//Custom parameters
+                        "labelClose":"Close color picker",
+                        "labelRAZColor":"Clear field"
+                    }
+            );
+        });
+    </script>
+</head>
+
+<body>
+<header>
+    <section class="content-wrapper">
+        <div class="float-left">
+            <h1 class="site-title">AntColorPicker jQuery plug in</h1>
+            <br/><span class="library-version">v1.12 - 02/07/2015</span>
+        </div>
+        <div class="float-right">
+            <a href="http://antproduction.free.fr/" title="AntProduction. Set once, daily use"><img src="../../public/images/antproduction-logo-blue-159x35.png" alt="logo of AntProduction. Set once, daily use" /></a>
+        </div>
+    </section>
+</header>
+<article class="main-content clear-fix" id="body">
+    <section class="content-wrapper">
+        <h2>Basic sample of AntColorPicker</h2>
+
+        <input id="colorPicker" />
+    </section>
+    <section class="content-wrapper">
+        <h2>Source Code</h2>
+				<pre><code style="background-color:#fff">
+//initialisation of AntColorPicker with customisation of labels
+$("#colorPicker").AntColorPicker(
+    //Custom parameters
+    {
+        "labelClose":"Close color picker",
+        "labelRAZColor":"Clear field"
+    }
+);
+                </code>
+					</pre>
+    </section>
+</article>
+<footer>Copyright © 2015 <a href="http://antproduction.free.fr/">AntProduction</a></footer>
+</body>
+</html>

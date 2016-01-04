@@ -4,7 +4,7 @@
 
 <script>'use strict';</script>
 
-<script src='lib/jquery-2.1.4.min.js'></script>
+<script src='lib/jquery/jquery-2.1.4.min.js'></script>
 
 <!-- Blockly -->
 <script src='lib/blockly/blockly_uncompressed.js'></script>
@@ -28,29 +28,37 @@
 <script src='lib/blockly/blocks/procedures.js'></script>
 <!-- ace -->
 <script src='lib/ace-builds/src-min/ace.js' charset="utf-8"></script>
+
+<!-- css files -->
+<link rel='stylesheet' type='text/css' href='https://fonts.googleapis.com/css?family=Nunito:300' />
+<link rel="stylesheet" type="text/css" href="lib/gauge-master/css/gauge.css" />
+<link rel="stylesheet" type="text/css" href="lib/rangeslider/rangeslider.css" />
+<!--link rel="stylesheet" type="text/css" href="lib/AntColorPicker/public/css/style.css" /-->
+<link rel="stylesheet" type="text/css" href="lib/AntColorPicker/public/css/AntColorPicker.css"/>
+<link rel="stylesheet" type="text/css" href="css/commands.css" />
+<link rel="stylesheet" type="text/css" href="css/dashboard.css" />
+<link rel='stylesheet' type='text/css' href='css/main.css' />
+
+
 <!-- Learnbits app -->
 <script src='js/app.js'></script>
 <!-- program -->
 <script src='js/program.js'></script>
 <!-- dashboard -->
-<script src='lib/smoothie.js'></script>
+<script src='lib/smoothie/smoothie.js'></script>
 <script src="lib/gauge-master/gauge-dk.js"></script>
 <script src="js/dashboard.js"></script>
 <!-- hardware -->
 <script src='js/hardware.js'></script>
-<!-- camera -->
-<script src='js/camera.js'></script>
+<!-- commands -->
+<script src='lib/rangeslider/rangeslider.js'></script>
+<script src="lib/AntColorPicker/public/js/libs/AntColorPicker.js"></script>
+<script src='js/commands.js'></script>
 
 <!-- main JS file -->
 <script src='js/controls.js'></script>
 <script src='js/init.js'></script>
 
-<!-- css files -->
-<!--link href='https://fonts.googleapis.com/css?family=Nunito:300' rel='stylesheet' type='text/css'-->
-<link rel="stylesheet" type="text/css" href="lib/gauge-master/css/gauge.css" />
-<link rel="stylesheet" type="text/css" href="css/dashboard.css" />
-<link rel="stylesheet" type="text/css" href="css/camera.css" />
-<link rel='stylesheet' type='text/css' href='css/main.css' />
 </head>
 
 <body>
@@ -66,10 +74,11 @@
 	<!-- screen width arrangement starts here -->
 	<div id='tabs-div'>
 		<ul>
-			 <li id='blockly-editor'><img src='media/blockly-icon.png'></li>
-			 <li id='ace-editor'    ><img src='media/python-icon.png'</li>
-			 <li id='dashboard'     ><img src='media/dashboard-icon.png'></li>
-			 <li id='camera'        ><img src='media/camera-icon3.png'></li>
+			<li id='dashboard'     ><img src='media/dashboard-icon.png'></li>
+			<li id='commands'        ><img src='media/control-icon.png'></li>
+			<!--li id='camera'        ><img src='media/camera-icon.png'></li-->
+			<li id='blockly-editor'><img src='media/blockly-icon.png'></li>
+			<li id='ace-editor'    ><img src='media/python-icon.png'</li>
 		</ul>
 	</div>
 	<!-- main content -->
@@ -77,9 +86,34 @@
 		<div id='blockly-editor-div' class='content-div'></div>
 		<div id='ace-editor-div' class='content-div'></div>
 		<div id='dashboard-div' class='content-div'><table id='sensors-table'></table></div>
-		<div id='camera-div' class='content-div'>
-			<div id='video-stream-div'><img id='video-stream-img' src=''></div>
-			<button id='camera-button'>Start</button>
+		<div id='commands-div' class='content-div'>
+			<div id='commands-icons-div'>
+				<img src='media/camera-icon.png' class='command-icon' style='top:20px;'>
+				<img src='media/motor-icon2.png' class='command-icon' style='top:290px;'>
+				<img src='media/led-icon3.png' class='command-icon' style='top:456px;'>
+			</div>
+			<div id='commands-controls-div'>
+				<div id='video-stream-div'><img id='video-stream-img' src=''></div>
+				<button class='cmd-button' id='camera-button'>Start</button>
+				<div id='motor-div' style='margin-top:40px;'>
+					<table style="margin-bottom:5px"> <!-- could only a table works here for this layout !!-->
+						<tr><td style='padding-bottom: 12px;'>Right&nbsp;motor&nbsp;</td><td style='padding-bottom: 12px; width:100%'><input id='right-motor' type='range' min='-255' max='255' value='0'></td></tr>
+						<tr><td style='padding-bottom: 12px;'>Left&nbsp;motor&nbsp;</td><td  style='padding-bottom: 12px; width:100%'><input id='left-motor' type='range' min='-255' max='255' value='0'></td></tr>
+					</table>
+					<button class='cmd-button' style='margin-left:150px; color:#2E8B57' id='motor-button'>GO</button>
+					<button class='cmd-button' style='margin-left:30px; color:red;' id='motor-button'>Stop</button>
+					<div style='border:1px solid #222; margin: 65px 0 0 35px; padding: 5px 0 0 5px; display:inline-block; background-color:#ddd'>
+						<div id="led1" class="circle"></div>
+						<div id="led2" class="circle"></div>
+						<div id="led3" class="circle"></div>
+						<div id="led4" class="circle"></div>
+						<div id="led5" class="circle"></div>
+						<div id="led6" class="circle"></div>
+						<div id="led7" class="circle"></div>
+						<div id="led8" class="circle"></div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 	<!-- sensors right-bar -->

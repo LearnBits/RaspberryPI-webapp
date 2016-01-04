@@ -34,13 +34,16 @@ def hello():
 
 @app.route('/serial_scan')
 def scan():
-	return g.api.send_serial_request({'CMD':'SCAN'})
+	ret_val = g.api.send_serial_request({'CMD':'SCAN'})
+	return json.dumps(ret_val)
 
 @app.route('/serial_cmd')
 def serial_cmd():
 	# we're going to add an REQ_ID therefore
 	# a copy is needed b/c request.args is immutable
-	return g.api.send_serial_request(request.args.copy())
+	ret_val = g.api.send_serial_request(request.args.copy())
+	return json.dumps(ret_val)
+
 
 # /motor?right=32&left=32
 @app.route('/motor')

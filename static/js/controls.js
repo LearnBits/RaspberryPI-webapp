@@ -46,6 +46,7 @@ function hoverTab($tab) {
 // handle toggling content-divs
 function showContentDiv(content, show) {
 	$('#' + content + '-div').css({visibility: show ? 'visible' : 'hidden'});
+	if(show) console.log(content);
 
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	 *               >>>>>   Unbelievable!!   <<<<<

@@ -17,7 +17,7 @@ class LBShieldAPI:
         if not g.config.use_serial:
             ret_val = LBShieldAPI.NO_SERIAL
         elif not g.alive:
-    		ret_val = LBShieldAPI.SERVER_SHUTDOWN
+    		ret_val = LBShieldAPI.SHUTDOWN
         else:
             req = LBSerialRequest(data)
             ret_val = req.get_ack() if req.is_ok else LBShieldAPI.ERROR
