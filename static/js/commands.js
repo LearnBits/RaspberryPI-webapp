@@ -23,7 +23,7 @@ function stop_camera() {
 		if(msg == 'OK' ) {
       $('#camera-button').text('Start');
       app.cameraIsON = false;
-      $('#video-stream-img').attr('src', '');
+      $('#video-stream-img').attr('src', app.defaultImage);
       /*window.setTimeout( function() {
         $('#video-stream-img').attr('src', '');
       }, 1000);*/
@@ -36,11 +36,34 @@ function stop_camera() {
   */
 
 function initCommands() {
-  initMotorSliders();
-  initColorPicker();
+  initCameraControls();
+  initMotorControls();
+  initLedBarControls();
 }
 
-function initMotorSliders() {
+function initCameraControls() {
+  $('#video-stream-img').attr('src', app.defaultImage);
+}
+
+function initMotorControls() {
+  // Buttons
+  function motor_cmd(right, left) {
+    $.get(`/motor?right=${right}&left=${left}`).done(function (msg) {
+      console.log(msg);
+    });
+  }
+
+  $('#go-motor-button').click( function() {
+    right = Math.round(parseInt($('#right-motor-val').text()) * 255 / 10);
+    left  = Math.round(parseInt($('#left-motor-val').text())  * 255 / 10);
+    motor_cmd(right, left);
+   });
+  $('#stop-motor-button').click( function() {
+    //$('div[id$="motor-val"]').text(0); // capture both sliders in one statement
+    motor_cmd(0,0);
+  });
+
+  // Sliders
   $('input[type="range"]').rangeslider({
       polyfill: false,
       onInit: function () {
@@ -63,20 +86,19 @@ function initMotorSliders() {
   });
 }
 
-function initColorPicker() {
+function initLedBarControls() {
 
+  // Color Picker
   function TagConvertor(chaine, TagList, joker) {
     var _mask = (joker == undefined)? "#":joker;
     for (var val in TagList) chaine = chaine.replace(new RegExp(_mask+val+_mask, "g"), TagList[val]);
     return chaine;
   }
-  // LED palette is taked from http://www.rapidtables.com/web/color/RGB_Color.htm
 
   function BuildPalette(contentTemplateLine, contentTemplate) { //méthode construisant la palette
     var content = ""
-    var values = ['#FF4500', '#FFD700', '#32CD32', '#8A2BE2', '#00BFFF', '#FF1493', '#F4A460', '#FFFFFF', '#000000'];
-    for (i = 0; i < values.length; i++) {
-        content += TagConvertor(contentTemplateLine,{"color":values[i]});
+    for (i = 0; i < SMALL_COLOR_PALETTE.length; i++) {
+        content += TagConvertor(contentTemplateLine,{"color":SMALL_COLOR_PALETTE[i]});
     }
     //Warning : tag starts and ends with #
     content = contentTemplate.replace("#contentLineTemplate#",content);
@@ -84,21 +106,67 @@ function initColorPicker() {
   }
 
   //initialisation of AntColorPicker with customisation of labels
-  $("#led1").AntColorPicker( {//Custom parameters
+  var led_opts = { builder: BuildPalette, __callback: LedBar8 }
+  $("#led1").AntColorPicker( led_opts );
+  $("#led2").AntColorPicker( led_opts );
+  $("#led3").AntColorPicker( led_opts );
+  $("#led4").AntColorPicker( led_opts );
+  $("#led5").AntColorPicker( led_opts );
+  $("#led6").AntColorPicker( led_opts );
+  $("#led7").AntColorPicker( led_opts );
+  $("#led8").AntColorPicker( led_opts );
+  $('#turn-off-led').click(function() {
+    for(var i=1; i<=8; i++)
+      $('#led' + i).css('backgroundColor', '#000');
+    $.get('/led_bar8?values=130,130,130,130,130,130,130,130').done(function (msg) {
+      console.log(msg);
+    });
+  })
+  //Custom parameters
     //labelClose: "Close color picker",
     //labelRAZColor: "Clear field",
-    builder: BuildPalette
-  });
-  $("#led2").AntColorPicker( {builder: BuildPalette});
-  $("#led3").AntColorPicker( {builder: BuildPalette});
-  $("#led4").AntColorPicker( {builder: BuildPalette});
-  $("#led5").AntColorPicker( {builder: BuildPalette});
-  $("#led6").AntColorPicker( {builder: BuildPalette});
-  $("#led7").AntColorPicker( {builder: BuildPalette});
-  $("#led8").AntColorPicker( {builder: BuildPalette});
-}
 
-LED_BAR_COLOR_PALETTE = [
+  function RGB2HEX(rgb) {
+    var a = rgb.split("(")[1].split(")")[0];
+    a = a.split(",");
+    var b = a.map(function(x) {
+      x = parseInt(x).toString(16);
+      return (x.length==1) ? "0"+x : x;
+    });
+    return ("#"+b.join("")).toUpperCase();
+  }
+
+  function BuildColorLookUpTable() {
+    var lut = {};
+    for(var i = 0; i < SMALL_COLOR_PALETTE.length; i++)
+      for(var j=0; j < LED_BAR_COLOR_PALETTE.length; j++)
+        if(SMALL_COLOR_PALETTE[i] == LED_BAR_COLOR_PALETTE[j])
+          Object.defineProperty(lut, SMALL_COLOR_PALETTE[i], {
+            value: j, writable: true, enumerable: true, configurable: true });
+    return lut;
+  }
+
+  var colorTable = BuildColorLookUpTable();
+
+  function LedBar8() {
+    var val = [];
+    for(var i=1; i<=8; i++) {
+      var rgb = $('#led' + i).css('backgroundColor');
+      var hex = RGB2HEX(rgb);
+      var index = colorTable[hex];
+      val.push(index);
+    }
+    console.log(val);
+    $.get(`/led_bar8?values=${val.join(',')}`).done(function (msg) {
+      console.log(msg);
+    });
+  }
+}
+var SMALL_COLOR_PALETTE = [ '#FF4500', '#FFD700', '#32CD32', '#8A2BE2', '#00BFFF', '#FF1493', '#F4A460', '#FFFFFF', '#000000'];
+
+// LED palette is taked from http://www.rapidtables.com/web/color/RGB_Color.htm
+
+var LED_BAR_COLOR_PALETTE = [
 '#800000','#8B0000','#A52A2A','#B22222','#DC143C','#FF0000','#FF6347','#FF7F50','#CD5C5C','#F08080','#E9967A','#FA8072',
 '#FFA07A','#FF4500','#FF8C00','#FFA500','#FFD700','#B8860B','#DAA520','#EEE8AA','#BDB76B','#F0E68C','#808000','#FFFF00',
 '#9ACD32','#556B2F','#6B8E23','#7CFC00','#7FFF00','#ADFF2F','#006400','#008000','#228B22','#00FF00','#32CD32','#90EE90',

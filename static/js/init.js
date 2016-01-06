@@ -22,6 +22,6 @@ $(document).ready(function() {
 	setButtonState('stop-button', 'off');
 	setButtonState('sample-button', 'on');
 
-	//resetPeripherals();
-	//scanSensors();
+	if(document.location.protocol == 'http:')
+		scanSensors();
 });

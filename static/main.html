@@ -4,8 +4,8 @@
 
 <script>'use strict';</script>
 
+<!-- Libraries-->
 <script src='lib/jquery/jquery-2.1.4.min.js'></script>
-
 <!-- Blockly -->
 <script src='lib/blockly/blockly_uncompressed.js'></script>
 <script src='lib/blockly/generators/python.js'></script>
@@ -30,17 +30,16 @@
 <script src='lib/ace-builds/src-min/ace.js' charset="utf-8"></script>
 
 <!-- css files -->
-<link rel='stylesheet' type='text/css' href='https://fonts.googleapis.com/css?family=Nunito:300' />
 <link rel="stylesheet" type="text/css" href="lib/gauge-master/css/gauge.css" />
 <link rel="stylesheet" type="text/css" href="lib/rangeslider/rangeslider.css" />
-<!--link rel="stylesheet" type="text/css" href="lib/AntColorPicker/public/css/style.css" /-->
 <link rel="stylesheet" type="text/css" href="lib/AntColorPicker/public/css/AntColorPicker.css"/>
 <link rel="stylesheet" type="text/css" href="css/commands.css" />
 <link rel="stylesheet" type="text/css" href="css/dashboard.css" />
 <link rel='stylesheet' type='text/css' href='css/main.css' />
 
-
-<!-- Learnbits app -->
+<!--***************************-->
+<!-- Learnbits APP starts here -->
+<!--***************************-->
 <script src='js/app.js'></script>
 <!-- program -->
 <script src='js/program.js'></script>
@@ -54,9 +53,9 @@
 <script src='lib/rangeslider/rangeslider.js'></script>
 <script src="lib/AntColorPicker/public/js/libs/AntColorPicker.js"></script>
 <script src='js/commands.js'></script>
-
-<!-- main JS file -->
+<!-- UI controls -->
 <script src='js/controls.js'></script>
+<!-- App initialization -->
 <script src='js/init.js'></script>
 
 </head>
@@ -74,46 +73,78 @@
 	<!-- screen width arrangement starts here -->
 	<div id='tabs-div'>
 		<ul>
-			<li id='dashboard'     ><img src='media/dashboard-icon.png'></li>
 			<li id='commands'        ><img src='media/control-icon.png'></li>
-			<!--li id='camera'        ><img src='media/camera-icon.png'></li-->
+			<li id='dashboard'     ><img src='media/dashboard-icon.png'></li>
 			<li id='blockly-editor'><img src='media/blockly-icon.png'></li>
 			<li id='ace-editor'    ><img src='media/python-icon.png'</li>
 		</ul>
 	</div>
 	<!-- main content -->
 	<div id='content-wrapper-div'>
+		<!-- TAB -->
+		<!-- Blockly -->
 		<div id='blockly-editor-div' class='content-div'></div>
+		<!-- TAB -->
+		<!-- Ace -->
 		<div id='ace-editor-div' class='content-div'></div>
+		<!-- TAB -->
+		<!-- Dashboard -->
 		<div id='dashboard-div' class='content-div'><table id='sensors-table'></table></div>
+		<!-- TAB -->
+		<!-- Commands -->
 		<div id='commands-div' class='content-div'>
-			<div id='commands-icons-div'>
-				<img src='media/camera-icon.png' class='command-icon' style='top:20px;'>
-				<img src='media/motor-icon2.png' class='command-icon' style='top:290px;'>
-				<img src='media/led-icon3.png' class='command-icon' style='top:456px;'>
-			</div>
-			<div id='commands-controls-div'>
-				<div id='video-stream-div'><img id='video-stream-img' src=''></div>
-				<button class='cmd-button' id='camera-button'>Start</button>
-				<div id='motor-div' style='margin-top:40px;'>
-					<table style="margin-bottom:5px"> <!-- could only a table works here for this layout !!-->
-						<tr><td style='padding-bottom: 12px;'>Right&nbsp;motor&nbsp;</td><td style='padding-bottom: 12px; width:100%'><input id='right-motor' type='range' min='-255' max='255' value='0'></td></tr>
-						<tr><td style='padding-bottom: 12px;'>Left&nbsp;motor&nbsp;</td><td  style='padding-bottom: 12px; width:100%'><input id='left-motor' type='range' min='-255' max='255' value='0'></td></tr>
-					</table>
-					<button class='cmd-button' style='margin-left:150px; color:#2E8B57' id='motor-button'>GO</button>
-					<button class='cmd-button' style='margin-left:30px; color:red;' id='motor-button'>Stop</button>
-					<div style='border:1px solid #222; margin: 65px 0 0 35px; padding: 5px 0 0 5px; display:inline-block; background-color:#ddd'>
-						<div id="led1" class="circle"></div>
-						<div id="led2" class="circle"></div>
-						<div id="led3" class="circle"></div>
-						<div id="led4" class="circle"></div>
-						<div id="led5" class="circle"></div>
-						<div id="led6" class="circle"></div>
-						<div id="led7" class="circle"></div>
-						<div id="led8" class="circle"></div>
-					</div>
-				</div>
-			</div>
+			<table id='commands-table'>
+				<!-- SECTION -->
+				<!-- Camera -->
+				<tr>
+					<td class='td-cmd-icon'>
+						<img src='media/camera-icon.png' style='width:48px;'>
+					</td>
+					<td class='td-cmd-main'>
+						<!--div id='video-stream-div'></div-->
+						<img id='video-stream-img' src=''>
+						<br>
+						<button class='cmd-button' id='camera-button'>Start</button>
+					</td>
+				</tr>
+				<!-- SECTION -->
+				<!-- Motor -->
+				<tr>
+					<td class='td-cmd-icon'>
+						<img src='media/motor-icon2.png' style='width:48px;'>
+					</td>
+					<td class='td-cmd-main'>
+						<span>Right motor&nbsp;</span> <input id='right-motor' type='range' min='-10' max='10' value='0'>
+						<br>
+						<span>Left motor&nbsp;</span><input id='left-motor' type='range' min='-10' max='10' value='0'>
+						<br>
+						<button class='cmd-button' style='margin-left:0px; color:#2E8B57' id='go-motor-button'>GO</button>
+						<button class='cmd-button' style='margin-left:10px; color:red;' id='stop-motor-button'>Stop</button>
+					</td>
+				</tr>
+				<!-- SECTION -->
+				<!-- Led Bar -->
+				<tr>
+					<td class='td-cmd-icon'>
+						<img src='media/led-icon3.png' style='width:48px;'>
+					</td>
+					<td class='td-cmd-main'>
+						<div id='led-div' style='margin-top: -35px;'>
+							<div style='border:1px solid #222; padding: 5px 0 0 5px; display:inline-block; background-color:#ddd'>
+								<div id="led1" class="circle"></div>
+								<div id="led2" class="circle"></div>
+								<div id="led3" class="circle"></div>
+								<div id="led4" class="circle"></div>
+								<div id="led5" class="circle"></div>
+								<div id="led6" class="circle"></div>
+								<div id="led7" class="circle"></div>
+								<div id="led8" class="circle"></div>
+							</div>
+							&nbsp;&nbsp;<img id='turn-off-led' style='margin-top:9px; position:absolute; cursor:pointer;' src='media/turn-off2.png'>
+						</div>
+					</td>
+				</tr>
+			</table>
 		</div>
 	</div>
 	<!-- sensors right-bar -->
@@ -129,312 +160,6 @@
 	<!-- end of screen width arrangement -->
 </div>
 
-
-
-<!-- Blockly toolbox definition -->
-<xml id="toolbox" style="display: none">
-    <category name="Logic" colour="210">
-      <block type="controls_if"></block>
-      <block type="logic_compare"></block>
-      <block type="logic_operation"></block>
-      <block type="logic_negate"></block>
-      <block type="logic_boolean"></block>
-      <block type="logic_null" disabled="true"></block>
-      <block type="logic_ternary"></block>
-    </category>
-    <category name="Loops" colour="120">
-      <block type="controls_repeat_ext">
-        <value name="TIMES">
-          <shadow type="math_number">
-            <field name="NUM">10</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="controls_repeat" disabled="true"></block>
-      <block type="controls_whileUntil"></block>
-      <block type="controls_for">
-        <value name="FROM">
-          <shadow type="math_number">
-            <field name="NUM">1</field>
-          </shadow>
-        </value>
-        <value name="TO">
-          <shadow type="math_number">
-            <field name="NUM">10</field>
-          </shadow>
-        </value>
-        <value name="BY">
-          <shadow type="math_number">
-            <field name="NUM">1</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="controls_forEach"></block>
-      <block type="controls_flow_statements"></block>
-    </category>
-    <category name="Math" colour="230">
-      <block type="math_number" gap="32"></block>
-      <block type="math_arithmetic">
-        <value name="A">
-          <shadow type="math_number">
-            <field name="NUM">1</field>
-          </shadow>
-        </value>
-        <value name="B">
-          <shadow type="math_number">
-            <field name="NUM">1</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="math_single">
-        <value name="NUM">
-          <shadow type="math_number">
-            <field name="NUM">9</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="math_trig">
-        <value name="NUM">
-          <shadow type="math_number">
-            <field name="NUM">45</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="math_constant"></block>
-      <block type="math_number_property">
-        <value name="NUMBER_TO_CHECK">
-          <shadow type="math_number">
-            <field name="NUM">0</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="math_change">
-        <value name="DELTA">
-          <shadow type="math_number">
-            <field name="NUM">1</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="math_round">
-        <value name="NUM">
-          <shadow type="math_number">
-            <field name="NUM">3.1</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="math_on_list"></block>
-      <block type="math_modulo">
-        <value name="DIVIDEND">
-          <shadow type="math_number">
-            <field name="NUM">64</field>
-          </shadow>
-        </value>
-        <value name="DIVISOR">
-          <shadow type="math_number">
-            <field name="NUM">10</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="math_constrain">
-        <value name="VALUE">
-          <shadow type="math_number">
-            <field name="NUM">50</field>
-          </shadow>
-        </value>
-        <value name="LOW">
-          <shadow type="math_number">
-            <field name="NUM">1</field>
-          </shadow>
-        </value>
-        <value name="HIGH">
-          <shadow type="math_number">
-            <field name="NUM">100</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="math_random_int">
-        <value name="FROM">
-          <shadow type="math_number">
-            <field name="NUM">1</field>
-          </shadow>
-        </value>
-        <value name="TO">
-          <shadow type="math_number">
-            <field name="NUM">100</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="math_random_float"></block>
-    </category>
-    <category name="Text" colour="160">
-      <block type="text"></block>
-      <block type="text_join"></block>
-      <block type="text_append">
-        <value name="TEXT">
-          <shadow type="text"></shadow>
-        </value>
-      </block>
-      <block type="text_length">
-        <value name="VALUE">
-          <shadow type="text">
-            <field name="TEXT">abc</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="text_isEmpty">
-        <value name="VALUE">
-          <shadow type="text">
-            <field name="TEXT"></field>
-          </shadow>
-        </value>
-      </block>
-      <block type="text_indexOf">
-        <value name="VALUE">
-          <block type="variables_get">
-            <field name="VAR">text</field>
-          </block>
-        </value>
-        <value name="FIND">
-          <shadow type="text">
-            <field name="TEXT">abc</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="text_charAt">
-        <value name="VALUE">
-          <block type="variables_get">
-            <field name="VAR">text</field>
-          </block>
-        </value>
-      </block>
-      <block type="text_getSubstring">
-        <value name="STRING">
-          <block type="variables_get">
-            <field name="VAR">text</field>
-          </block>
-        </value>
-      </block>
-      <block type="text_changeCase">
-        <value name="TEXT">
-          <shadow type="text">
-            <field name="TEXT">abc</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="text_trim">
-        <value name="TEXT">
-          <shadow type="text">
-            <field name="TEXT">abc</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="text_print">
-        <value name="TEXT">
-          <shadow type="text">
-            <field name="TEXT">abc</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="text_prompt_ext">
-        <value name="TEXT">
-          <shadow type="text">
-            <field name="TEXT">abc</field>
-          </shadow>
-        </value>
-      </block>
-    </category>
-    <!--category name="Lists" colour="260">
-      <block type="lists_create_with">
-        <mutation items="0"></mutation>
-      </block>
-      <block type="lists_create_with"></block>
-      <block type="lists_repeat">
-        <value name="NUM">
-          <shadow type="math_number">
-            <field name="NUM">5</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="lists_length"></block>
-      <block type="lists_isEmpty"></block>
-      <block type="lists_indexOf">
-        <value name="VALUE">
-          <block type="variables_get">
-            <field name="VAR">list</field>
-          </block>
-        </value>
-      </block>
-      <block type="lists_getIndex">
-        <value name="VALUE">
-          <block type="variables_get">
-            <field name="VAR">list</field>
-          </block>
-        </value>
-      </block>
-      <block type="lists_setIndex">
-        <value name="LIST">
-          <block type="variables_get">
-            <field name="VAR">list</field>
-          </block>
-        </value>
-      </block>
-      <block type="lists_getSublist">
-        <value name="LIST">
-          <block type="variables_get">
-            <field name="VAR">list</field>
-          </block>
-        </value>
-      </block>
-      <block type="lists_split">
-        <value name="DELIM">
-          <shadow type="text">
-            <field name="TEXT">,</field>
-          </shadow>
-        </value>
-      </block>
-    </category-->
-    <!--category name="Colour" colour="20">
-      <block type="colour_picker"></block>
-      <block type="colour_random"></block>
-      <block type="colour_rgb">
-        <value name="RED">
-          <shadow type="math_number">
-            <field name="NUM">100</field>
-          </shadow>
-        </value>
-        <value name="GREEN">
-          <shadow type="math_number">
-            <field name="NUM">50</field>
-          </shadow>
-        </value>
-        <value name="BLUE">
-          <shadow type="math_number">
-            <field name="NUM">0</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="colour_blend">
-        <value name="COLOUR1">
-          <shadow type="colour_picker">
-            <field name="COLOUR">#ff0000</field>
-          </shadow>
-        </value>
-        <value name="COLOUR2">
-          <shadow type="colour_picker">
-            <field name="COLOUR">#3333ff</field>
-          </shadow>
-        </value>
-        <value name="RATIO">
-          <shadow type="math_number">
-            <field name="NUM">0.5</field>
-          </shadow>
-        </value>
-      </block>
-    </category-->
-    <sep></sep>
-    <category name="Variables" colour="330" custom="VARIABLE"></category>
-    <category name="Functions" colour="290" custom="PROCEDURE"></category>
-  </xml>
 
 <!-- Default Python program -->
 <script type="python code" id="init_program">

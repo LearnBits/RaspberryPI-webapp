@@ -1,11 +1,24 @@
-#video-stream-div {
+#video-stream-img {
     border: 1px solid #666;
     width: 324px; height: 182px;
     margin-bottom: 10px;
 }
-#motor-div {
-  width: 400px;
-  margin-top: 30px;
+
+#commands-table {
+  margin: 0;
+  border-collapse: collapse;
+  height:100%;
+}
+
+.td-cmd-icon {
+  vertical-align: top;
+  padding:20px;
+  background-color: #BACCAA;
+}
+
+.td-cmd-main {
+  padding:5px 0 10px 25px;
+  border: 0px solid blue;
 }
 
 .cmd-button {
@@ -44,16 +57,16 @@ input[type='range'] {
 	display: inline-block;
 	margin-right: 12px;
   width: 22px; height: 22px;
-  background: #444;
+  background: #000;
 }
 
 #AntColorPicker {
-    width:  62px !important;
+    /* DK size is hardcoded (too bad!!) */
+    width:  78px !important;  height: 59px;
     background-color: #fff;
     border: none;
     border-radius: 4px;
     box-shadow: 2px 2px 2px #444;
-    height: 43px;
 }
 #AntColorPicker ul {
     margin-right: 20px;

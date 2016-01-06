@@ -54,22 +54,23 @@
         //On définit nos paramètres par défaut
         var defauts=
         {
-            "builder": function(contentTempLinelate, contentTemplate, templateCorssToClose, labelClose) { //méthode construisant la palette
+            builder: function(contentTempLinelate, contentTemplate, templateCorssToClose, labelClose) { //méthode construisant la palette
                 var content = contentBuilder(contentTempLinelate);
                 content = contentTemplate.replace("#contentLineTemplate#",content);
                 return content;
             },
-            "contentLineTemplate": contentLineTemplate,
-            "contentTemplate": contentTemplate,
-            "iconPath": "../public/images/antColorPicker/",
-            "labelClose":"Fermer",
-            "labelRAZColor":"Réinitialiser la valeur",
-            "largeurPalette": 390,
-            "withRAZOption": true,
-            "withCrossToClose": true,
-            "withPaletteIcon": true,
-            "zIndex": 1500,
-            "$BGColorTarget":'#AntColorPicker'
+            __callback: null, // added by DK
+            contentLineTemplate: contentLineTemplate,
+            contentTemplate: contentTemplate,
+            iconPath: "../public/images/antColorPicker/",
+            labelClose:"Fermer",
+            labelRAZColor:"Réinitialiser la valeur",
+            largeurPalette: 390,
+            withRAZOption: true,
+            withCrossToClose: true,
+            withPaletteIcon: true,
+            zIndex: 1500,
+            $BGColorTarget:'#AntColorPicker'
         };
 
         //Lecture des paramétres et fusion avec ceux par défaut
@@ -196,13 +197,17 @@
                     $(parametres.$BGColorTarget).css('backgroundColor', $$.val());
                 });
 
+                // DK : need to capture this event so and send a LED command to the shield
                 // Lorsqu'une couleur est cliqué, on affiche la valeur dans le textfield (se fait après le focus out)
                 $('#AntColorPicker a').not('.AntColorPickerClose .RaZAntColorPicker').click(function (event) {
-                    var tmp = $(this).attr('rel');
-                    $$.val(tmp);
-                    $$.css('backgroundColor', tmp);
+                    var color_picked = $(this).attr('rel');
+                    $$.val(color_picked);
+                    $$.css('backgroundColor', color_picked);
                     chooseFontColor();
                     removeColorPicker();
+                    // Added by DK
+                    if(parametres.__callback)
+                      parametres.__callback();
                 });
 
                 // Au survol d'une couleur, on change le fond

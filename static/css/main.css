@@ -1,4 +1,10 @@
 /*body, ol, ul {*/
+
+@font-face {
+ 	font-family: 'Nunito';
+  src: url('../media/Nunito-Light.ttf');
+}
+
 body {
 	margin: 0; padding: 0;
 }

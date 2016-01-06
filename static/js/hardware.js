@@ -13,22 +13,6 @@ function noSerial(resp) {
 	return 'STATUS' in resp && resp.STATUS == 'NO_SERIAL';
 }
 
-/*
-function resetPeripherals() {
-  var timer = window.setInterval( function() {
-		$.get('/serial_cmd', {CMD: 'RESET'}).done(function (jsonResp) {
-			//resp = JSON.parse(JSON.parse(jsonResp));
-			resp = JSON.parse(jsonResp);
-			//console.log('serial_cmd resp=' + resp);
-			if(responseIsOK(resp, 'Hardware reset') || noSerial(resp)) {
-				console.log(resp);
-				window.clearInterval(timer);
-			}
-		});
-	}, 5000);
-}
-*/
-
 function scanSensors(fCounter) {
 	var timer = window.setInterval(function () {
 		$.get('/serial_scan').done(function (jsonResp) {
@@ -82,7 +66,7 @@ function initSensors(startSamplingFunc) {
 }
 
 var sensorIDTable = {
-	'80' : 'SLIDEPOT',
+	'80' : 'SLIDE_POTENTIOMETER',
 	'104': 'MPU6050',
 	'119': 'BMP180',
 }
@@ -123,7 +107,7 @@ var sensorPropsTable = {
 	 	} ]
  },
 
-	'SLIDEPOT': {
+	'SLIDE_POTENTIOMETER': {
 		command: {CMD: 'SLIDEPOT', MSEC: 300},
 		signal: [ {
 			name: 'Slider',
@@ -135,6 +119,24 @@ var sensorPropsTable = {
 };
 
 /*
+function resetPeripherals() {
+  var timer = window.setInterval( function() {
+		$.get('/serial_cmd', {CMD: 'RESET'}).done(function (jsonResp) {
+			//resp = JSON.parse(JSON.parse(jsonResp));
+			resp = JSON.parse(jsonResp);
+			//console.log('serial_cmd resp=' + resp);
+			if(responseIsOK(resp, 'Hardware reset') || noSerial(resp)) {
+				console.log(resp);
+				window.clearInterval(timer);
+			}
+		});
+	}, 5000);
+}
+*/
+
+/*
+Color palette used in the shield
+
 const uint32_t RGB_TABLE[RGB_TABLE_SIZE]={
 0x800000,0x8B0000,0xA52A2A,0xB22222,0xDC143C,0xFF0000,0xFF6347,0xFF7F50,0xCD5C5C,0xF08080,0xE9967A,0xFA8072,
 0xFFA07A,0xFF4500,0xFF8C00,0xFFA500,0xFFD700,0xB8860B,0xDAA520,0xEEE8AA,0xBDB76B,0xF0E68C,0x808000,0xFFFF00,

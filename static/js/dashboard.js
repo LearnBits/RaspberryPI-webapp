@@ -139,7 +139,7 @@ function toggleSampling() {
 
 function plotDashboardSample(samplingData) {
 	sensor = sensorPropsTable[samplingData.SAMPLE_ID];
-	console.log(`Sample: ${samplingData.SAMPLE_ID}, ${samplingData.VAL.toString()}`);
+	//console.log(`Sample: ${samplingData.SAMPLE_ID}, ${samplingData.VAL.toString()}`);
 	for(var i = 0; i < sensor.signal.length; i++) {
 		var sigID = `${samplingData.SAMPLE_ID}-${sensor.signal[i].name}`;
 		app.dashboard[sigID].setValue(samplingData.VAL);
@@ -147,6 +147,11 @@ function plotDashboardSample(samplingData) {
 }
 
 function startSampling() {
+	function startGraphs() {
+		for(var i = 0; i < dashboard.length; i++)
+			app.dashboard[i].graph.start();
+	}
+
 	app.sseSocket = new EventSource('/start_sampling');
 	console.log('app.sseSocket created');
 
@@ -156,9 +161,8 @@ function startSampling() {
 			plotDashboardSample(samplingData);
 	}
 	app.sseSocket.addEventListener('start', function(message) {
-		//console.log(`message.data=${message.data}`);
 		app.streamId = message.data;
-		//console.log(`app.streamId=${app.streamId}`);
+		startGraphs();
 	});
 	app.sseSocket.addEventListener('close', function(message) {
 		app.sseSocket.close();
@@ -171,25 +175,12 @@ function startSampling() {
 }
 
 function stopSampling() {
+	function stopGraphs() {
+		for(var i = 0; i < dashboard.length; i++)
+			app.dashboard[i].graph.stop();
+	}
 	$.get('/stop_sampling', {STREAM_ID: app.streamId}).done(function (jsonResp) {
 		console.log(`closing stream ${app.streamId}`);
 	});
+	stopGraphs();
 }
-
-
-
-/*
-	var sensor = [
-		new Sensor('accelerometer', '1', defaultOpts),
-		new Sensor('gyroscope', '2', defaultOpts)
-	];
-
-	var ccc = 0;
-	setInterval( function() {
-		var a = ccc * Math.PI / 180;
-		//sensor[0].setValue(Math.round(40 * Math.sin(a+5) + 30 * Math.abs(Math.cos(19 * a))) + 20);
-		sensor[0].setValue(Math.round(40 * Math.cos(a) + 30 * Math.abs(Math.cos(15 * a))) + 20);
-		sensor[1].setValue(Math.round(40 * Math.cos(a) + 30 * Math.abs(Math.cos(15 * a))) + 20);
-		ccc += 18;
-	}, 500);
-	*/

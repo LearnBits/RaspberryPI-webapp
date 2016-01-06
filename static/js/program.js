@@ -76,33 +76,39 @@ function generatePythonSourceCode() {
 
 
 // Depending on the URL argument, render as LTR or RTL.
-
 function initBlockly() {
-	var workspace = Blockly.inject(
-		'blockly-editor-div',
-		{
-			comments: true,
-			disable: true,
-			collapse: true,
+
+	function initToolbox(toolboxXMLConfig) {
+		app.BlocklyWorkspace = Blockly.inject(
+			'blockly-editor-div', {
+			comments: true, disable: true, collapse: true,
 			grid: {
-				spacing: 25,
-				length: 3,
-				colour: '#ddd', // DK: customize
-				snap: true },
-			maxBlocks: Infinity,
-			media: 'lib/blockly/media/',
-			rtl: (document.location.search == '?rtl'),
-			scrollbars: true,
-			toolbox: document.getElementById('toolbox'),
-			zoom: {
-				controls: true,
-				wheel: true,
-				startScale: 1.0,
-				maxScale: 4,
-				minScale: .25,
-				scaleSpeed: 1.1
+				spacing: 25, length: 3,
+				colour: '#ddd', /* DK: customize */ snap: true
 			},
+			maxBlocks: Infinity, media: 'lib/blockly/media/',
+			rtl: (document.location.search == '?rtl'), scrollbars: true,
+			toolbox: toolboxXMLConfig,
+			zoom: {
+				controls: true, wheel: true, startScale: 1.0,
+				maxScale: 4, minScale: .25, scaleSpeed: 1.1
+			}
 		});
+	}
+
+	// starts here
+	$.ajax({
+		type: "GET",
+		url: "blockly_toolbox.xml",
+		dataType: "xml",
+		success: function(blocklyXMLConfig) {
+			initToolbox(blocklyXMLConfig.documentElement);
+			// This hack is needed:
+			// We don't want to display the Blockly toolbox
+			// but since the toolbox is displayed when it's created we need to hide it
+			showContentDiv('blockly-editor', false);
+		},
+	});
 }
 
 
