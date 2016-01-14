@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Sample of custom AntColorPicker - AntProduction</title>
+    <meta content="Sample of custom AntColorPicker the jQuery color picker plug-in of AntProduction." name="description">
+    <meta content="antproduction, jquery plug in, jquery, turnkey jquery library, AntColorPicker, color picker" name="keywords">
+    <meta name="author" content="Antrax2013">
+
+    <!-- hightLight Syntaxe -->
+    <link rel="stylesheet" href="http://yandex.st/highlightjs/8.0/styles/default.min.css">
+    <script src="http://yandex.st/highlightjs/8.0/highlight.min.js"></script>
+
+    <link href="../public/css/style.css" rel="stylesheet">
+    <link href="../public/css/AntColorPicker.css" rel="stylesheet">
+
+    <style type="text/css">
+        #AntColorPicker {
+            width:  62px !important;
+            background-color: #fff;
+            border: none;
+            border-radius: 4px;
+            box-shadow: 2px 2px 2px #444;
+            height: 43px;
+        }
+        #AntColorPicker ul {
+            margin-right: 20px;
+            padding: 5px;
+        }
+        #AntColorPicker li {
+            border: 2px white solid;
+            border-radius: 4px;
+            margin: 1px;
+            box-shadow: 1px 1px 2px #444;
+        }
+    </style>
+
+
+    <script type="text/javascript" src="../public/js/libs/external-libs/jquery-1.10.1.min.js"></script>
+    <script type="text/javascript" src="../public/js/libs/external-libs/jquery-ui-1.10.4.min.js"></script>
+    <script type="text/javascript" src="../public/js/libs/external-libs/google-analytics.js"></script>
+    <script type="text/javascript" src="../public/js/libs/AntColorPicker.js"></script>
+    <script type="text/javascript">
+
+        //Sources code hightLight syntaxe
+        hljs.initHighlightingOnLoad();
+
+        $(document).ready(function() {
+            //function to replace tags
+            function TagConvertor(chaine, TagList, joker) {
+                var _mask = (joker == undefined)? "#":joker;
+                for (var val in TagList) chaine = chaine.replace(new RegExp(_mask+val+_mask, "g"), TagList[val]);
+                return chaine;
+            }
+
+            //initialisation of AntColorPicker with customisation of labels
+            $("#colorPicker").AntColorPicker(
+                    {//Custom parameters
+                        "labelClose":"Close color picker",
+                        "labelRAZColor":"Clear field",
+                        "builder":function(contentTemplateLine, contentTemplate) { //méthode construisant la palette
+                            var content = ""
+                            var values = ['#068241', 'rgb(86, 168, 38)', '#CC0079', '#FFCC00'];
+                            for (i = 0; i < values.length; i++) {
+                                content += TagConvertor(contentTemplateLine,{"color":values[i]});
+                            }
+
+                            //Warning : tag starts and ends with #
+                            content = contentTemplate.replace("#contentLineTemplate#",content);
+                            return content;
+                        }
+                    }
+            )
+        });
+    </script>
+</head>
+
+<body>
+<header>
+    <section class="content-wrapper">
+        <div class="float-left">
+            <h1 class="site-title">AntColorPicker jQuery plug in</h1>
+            <br/><span class="library-version">v1.12 - 02/07/2015</span>
+        </div>
+        <div class="float-right">
+            <a href="http://antproduction.free.fr/" title="AntProduction. Set once, daily use"><img src="../../public/images/antproduction-logo-blue-159x35.png" alt="logo of AntProduction. Set once, daily use" /></a>
+        </div>
+    </section>
+</header>
+<article class="main-content clear-fix" id="body">
+    <section class="content-wrapper">
+        <h2>Sample of custom AntColorPicker</h2>
+        <p>In this sample, you can see how to customise CSS and content of an AntColorPicker. I used a predefined palette with 4 colors.</p>
+        <input id="colorPicker" />
+    </section>
+    <section class="content-wrapper">
+        <h2>Source Code</h2>
+        <h3>JavaScript used</h3>
+				<pre><code style="background-color:#fff">
+//function to replace tags
+function TagConvertor(chaine, TagList, joker) {
+    var _mask = (joker == undefined)? "#":joker;
+    for (var val in TagList) chaine = chaine.replace(new RegExp(_mask+val+_mask, "g"), TagList[val]);
+    return chaine;
+}
+
+//initialisation of AntColorPicker and customisation
+$("#colorPicker").AntColorPicker(
+{
+    //Custom parameters
+    "labelClose":"Close color picker",
+    "labelRAZColor":"Clear field",
+
+    //Custom function to build the palette
+    "builder":function(contentTemplateLine, contentTemplate, labelClose) { //méthode construisant la palette
+        var content = ""
+        var values = ['#068241', 'rgb(86, 168, 38)', '#CC0079', '#FFCC00'];
+        for (i = 0; i < values.length; i++) {
+            content += TagConvertor(contentTemplateLine,{"color":values[i]});
+        }
+        //Warning : tag starts and ends with #
+        content = contentTemplate.replace("#contentLineTemplate#",content);
+        return content;
+    }
+}
+
+                </code>
+					</pre>
+        <h3>CSS used</h3>
+<pre><code style="background-color:#fff">
+    #AntColorPicker {
+    width:  62px !important;
+    background-color: #fff;
+    border: none;
+    border-radius: 4px;
+    box-shadow: 2px 2px 2px #444;
+    height: 43px;
+    }
+    #AntColorPicker ul {
+    margin-right: 20px;
+    padding: 5px;
+    }
+    #AntColorPicker li {
+    border: 2px white solid;
+    border-radius: 4px;
+    margin: 1px;
+    box-shadow: 1px 1px 2px #444;
+    }
+</code>
+					</pre>
+    </section>
+</article>
+<footer>Copyright © 2015 <a href="http://antproduction.free.fr/">AntProduction</a></footer>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+		<meta charset="utf-8" />
+		<meta content="AntColorPicker is part of AntLibrairies. AntColorPicker a jQuery color picker plug-in." name="description">
+		<meta content="antproduction, jquery ui library, jquery, turnkey jquery ui library, javascript library, AntColorPicker, color picker " name="keywords">
+		<meta name="author" content="Antrax2013">
+		
+        <title>Documentation of AntColorPicker - AntProduction</title>
+		<link href="public/css/style.css" rel="stylesheet">
+		
+		<!-- hightLight Syntaxe -->
+		<link rel="stylesheet" href="http://yandex.st/highlightjs/8.0/styles/default.min.css">
+		<script src="http://yandex.st/highlightjs/8.0/highlight.min.js"></script>		
+		
+		<script type="text/javascript" src="public/js/libs/external-libs/google-analytics.js"></script>	
+	</head>
+ 
+    <body>
+		<header>
+			<section class="content-wrapper">
+				<div class="float-left">
+				    <h1 class="site-title">AntColorPicker</h1>
+					<br/>
+					<span class="library-version">02/07/2015 - New release of AntColorPicker library is avaliable !!</span>
+				</div>
+				<div class="float-right">
+					<a href="http://antproduction.free.fr/" title="AntProduction. Set once, daily use"><img src="public/images/antproduction-logo-blue-159x35.png" alt="logo of AntProduction. Set once, daily use" /></a>
+				</div>
+			</section>
+		</header>
+		<article class="main-content clear-fix" id="body">
+			<section class="content-wrapper">
+                <h2>About of AntColorPicker</h2>
+				<p>
+					<strong>AntColorPicker</strong>, is the jQuery color picker plug-in of AntProduction.
+                </p>
+                <br />
+                <p>Have a question about AntColorPicker ? <a href="https://github.com/antrax2013/AntColorPicker/issues" title="GitHub Issue of AntColorPicker">Please use GitHub Issue.</a></p>
+			</section>
+
+			<section class="content-wrapper">
+				<h2>Documentation of AntColorPicker </h2>
+				<table>
+					<tr>
+						<th>Fields</th>
+						<th>Description</th>
+					</tr>
+                    <tr>
+                        <td>builder <span class="type">[optional JavaScript anonymous function]</span></td>
+                        <td><span class="description">The default function to build the html content of the Antcolorpicker based on contentTemplate and contentLineTemplate parameters. Contained tags from templates are replaced with it.</span></td>
+                    </tr>
+                    <tr>
+                        <td>contentLineTemplate <span class="type">[optional template html]</span></td>
+                        <td><span class="description">The template Html to display colored boxes. It contain tag which will be replaced to insert colors. The template of tag is as follow : #tag#.
+                            <pre><code>example based on color :
+                                &lt;li&gt;
+                                &lt;a name="#color#" rel="#color#" style="background:#color#;" title="#color#"&gt;&lt;/a&gt;
+                                &lt;/li&gt;</code></pre>
+                        </span></td>
+                    </tr>
+                    <tr>
+                        <td>contentTemplate <span class="type">[optional template html]</span></td>
+                        <td>
+                            <span class="description">
+                                The template Html to define the structure of the palette. If it doesn't contain tags, #contentLineTemplate# and #crossToClose#, options contentLineTemplate, labelClose and withCrossToClose are ignored.
+                                <pre><code>basic example :
+                                    &lt;div id="AntColorPicker" class="AntColorPicker"&gt;
+                                    &lt;ul&gt;#contentLineTemplate#&lt;/ul&gt;
+                                    #crossToClose#
+                                    &lt;/div&gt;</code></pre>
+                            </span>
+                        </td>
+                    </tr>
+					<tr>
+						<td>iconPath <span class="type">[string]</span></td>
+						<td><span class="description">The relative path of directory of icons</span></td>
+					</tr>
+                    <tr>
+                        <td>labelClose <span class="type">[string]</span></td>
+                        <td><span class="description">Label of tooltip for close icon</span></td>
+                    </tr>
+                    <tr>
+                        <td>labelRAZColor <span class="type">[string]</span></td>
+                        <td><span class="description">Label of tooltip for RAZ icon</span></td>
+                    </tr>
+                    <tr>
+                        <td>largeurPalette <span class="type">[integer]</span></td>
+                        <td><span class="description">Integer to define the width of the div of the AntColorPicker</span></td>
+                    </tr>
+                    <tr>
+                        <td>withRAZOption <span class="type">[boolean]</span></td>
+                        <td><span class="description">Option. If "withRAZOption" is true, an icon to clear input field is added to the DOM next to input field</span></td>
+                    </tr>
+                    <tr>
+                        <td>withCrossToClose <span class="type">[boolean]</span></td>
+                        <td><span class="description">Option. If "withCrossToClose" is true, an icon to close palette is added</span></td>
+                    </tr>
+                    <tr>
+                        <td>withPaletteIcon <span class="type">[boolean]</span></td>
+                        <td><span class="description">Option. If "withPaletteIcon" is true, an icon is added into input field</span></td>
+                    </tr>
+					<tr>
+						<td>zIndex <span class="type">[integer]</span></td>
+						<td><span class="description">Integer to define the z-index of the div of the AntColorPicker</span></td>
+					</tr>
+                    <tr>
+						<td>$BGColorTarget <span class="type">[string]</span></td>
+						<td><span class="description">String provided to selector of jQuery</span></td>
+					</tr>
+
+				</table>
+			</section>
+
+			<section class="content-wrapper">
+				<h2 id="Samples">Samples of AntColorPicker</h2>
+				<table>
+					<tr>
+						<td>Basic sample of <strong>AntColorPicker</strong>.</td>
+						<td><a href="samples/basic-sample-antcolorpicker.html" title="Basic sample of AntColorPicker, the jQuery color picker of AntProduction" target="_blank">Try it</a></td>
+					</tr>
+                    <tr>
+                        <td>Sample of custom <strong>AntColorPicker</strong>.</td>
+                        <td><a href="samples/sample-customise-antcolorpicker.html" title="Sample of custom AntColorPicker, the jQuery color picker of AntProduction" target="_blank">Try it</a></td>
+                    </tr>
+                    <tr>
+                        <td>MS-Office color picker, sample of custom <strong>AntColorPicker</strong>.</td>
+                        <td><a href="samples/office-color-picker-customization-antcolorpicker.html" title="MS-Office color picker, sample of custom of AntColorPicker, the jQuery color picker of AntProduction" target="_blank">Try it</a></td>
+                    </tr>
+				</table>
+			</section>
+		</article>
+		<footer>Copyright © 2015 <a href="http://antproduction.free.fr/" title="AntProduction. Set once, daily use">AntProduction</a></footer>
+    </body>
+</html>
