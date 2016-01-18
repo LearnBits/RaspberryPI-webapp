@@ -1,15 +1,10 @@
 # import the necessary packages
 from collections import deque
 import numpy as np
-import imutils
 import cv2
 
 
-
 BUFFER_SIZE = 32
-
-
-
 
 class color_motion_detect(object):
 	def __init__(self):
@@ -24,7 +19,7 @@ class color_motion_detect(object):
 		# range-detector  -f hsv --webcam
 		self.colorLower = (90, 120, 160)
 		self.colorUpper = (110, 255, 255)
- 
+
 	def configure(self, configuration):
 		if "colorLower" in configuration:
 			self.colorLower = configuration["colorLower"]
@@ -34,7 +29,7 @@ class color_motion_detect(object):
 
 	def detect(self, frame):
 		(dX, dY) = (0, 0)
-		
+
 
 		# resize the frame, blur it, and convert it to the HSV
 		# color space
@@ -51,8 +46,7 @@ class color_motion_detect(object):
 
 		# find contours in the mask and initialize the current
 		# (x, y) center of the ball
-		cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
-			cv2.CHAIN_APPROX_SIMPLE)[-2]
+		cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
 		center = None
 
 		# only proceed if at least one contour was found
@@ -83,7 +77,9 @@ class color_motion_detect(object):
 
 			# check to see if enough points have been accumulated in
 			# the buffer
-			if self.counter >= 10 and i == 1 and len(self.pts) >= 10:
+			''' DK fixed a bug : added and len(self.pts) >= 10 '''
+			#if self.counter >= 10 and i == 1 and len(self.pts) >= 10:
+			if self.counter >= 10 and len(self.pts) >= 10 and i == 1 and len(self.pts) >= 10:
 				# compute the difference between the x and y
 				# coordinates and re-initialize the self.direction
 				# text variables
@@ -130,4 +126,3 @@ class color_motion_detect(object):
 			"direction": self.direction,
 			"center": center
 			})
-

@@ -1,7 +1,6 @@
 from Queue      import Queue, Empty
 from flask      import Flask, request, Response, redirect, url_for
-from serialport import LBSerialRequest, LBDispatcher
-from camera     import LBVisionProcessor
+from camera     import LBComputerVision
 from sandbox    import LBSandbox
 from sse        import LBServerSideEvent
 from glob       import g
@@ -96,7 +95,8 @@ def disconnect():
 @app.route('/start_camera')
 def start_camera():
 	print 'start_camera'
-	pi.camera.start()
+	processor = request.args['processor']
+	pi.camera.start(processor)
 	return HTTP_OK
 
 @app.route('/stop_camera')

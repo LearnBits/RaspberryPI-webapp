@@ -1,11 +1,10 @@
 from threading 	import Thread, Timer
-from glob        import g
-from api import pi
+from glob       import g
+from api 		import pi
 from flask      import Flask
 from time       import strftime, sleep
-from sys	    import exit
 from webapp     import app
-import dateutil.relativedelta, datetime, requests, argparse
+import dateutil.relativedelta, datetime, requests, argparse, sys
 
 
 # VARs
@@ -15,22 +14,7 @@ TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 def start_server():
 	g.start_uptime = datetime.datetime.strptime(strftime(TIME_FORMAT), TIME_FORMAT)
 	g.check_supported_platform()
-
-def end_server():
-	# Pretty time print
-	def pprint(diff, units):
-		words = []
-		for u in units:
-			v = eval('diff.' + u + 's') # + 's' b/c it's diff.days (with an 's')
-			if v > 0:
-				words.append('%d %s' % (v, u if v == 1 else u + 's'))
-		return ' '.join(words)
-	#
-	end_uptime = datetime.datetime.strptime(strftime(TIME_FORMAT), TIME_FORMAT)
-	diff = dateutil.relativedelta.relativedelta(end_uptime, g.start_uptime)
-	print 'Total uptime: %s' % pprint(diff, ['month', 'day', 'hour', 'minute', 'second'])
-
-
+#
 def warm_up():
 	''' Start all threads '''
 	#
@@ -52,7 +36,6 @@ def warm_up():
 		i2c_scan_thread    = Thread(target=g.serial.scan_I2C, args=(5.0,))
 		serial_port_thread.start()
 		i2c_scan_thread.start()
-
 	#
 	print
 	#
@@ -63,12 +46,9 @@ def warm_up():
 	web_app_thread = Thread(target=start_web_app)
 	web_app_thread.start()
 	#
-	# Open video camera # (OS X bug: must be done in the main thread)
-	if g.config.use_camera:
-		from camera import LBVisionProcessor
-		pi.camera.turn_on()
-
-
+	if g.config.use_camera and g.is_OSX:
+		from camera import LBComputerVision
+#
 def cool_down():
 	''' Gracefully terminate all running threads '''
 	def stop_web_app():
@@ -87,11 +67,31 @@ def cool_down():
 	#
 	g.sandbox.stop_program()
 	#
-	if g.config.use_camera:
-		pi.camera.turn_off()
-	#
 	stop_web_app()
+#
+def shutdown():
+	# Pretty time print
+	def pprint(diff, units):
+		words = []
+		for u in units:
+			v = eval('diff.' + u + 's') # + 's' b/c it's diff.days (with an 's')
+			if v > 0:
+				words.append('%d %s' % (v, u if v == 1 else u + 's'))
+		return ' '.join(words)
+	#
+	end_uptime = datetime.datetime.strptime(strftime(TIME_FORMAT), TIME_FORMAT)
+	diff = dateutil.relativedelta.relativedelta(end_uptime, g.start_uptime)
+	print 'Total uptime: %s' % pprint(diff, ['month', 'day', 'hour', 'minute', 'second'])
+	sys.exit(0)
+#
 
+def check_camera_flag_OSX():
+	# Open video camera # (OS X bug: must be done in the main thread)
+	if g.turn_on_camera_osx:
+		pi.camera.turn_on()
+	elif g.turn_off_camera_osx:
+		pi.camera.turn_off()
+#
 
 def parse_args():
 	parser = argparse.ArgumentParser(description='Learnbits application')
@@ -112,13 +112,13 @@ if __name__ == '__main__':
 	''' main idle loop '''
 	try:
 		while g.alive:
+			if g.is_OSX and g.config.use_camera:
+				check_camera_flag_OSX()
 			sleep(1.0)
 	except Exception as e:
-		print 'Got exception %s' % str(e)
+		print 'main.py: got exception %s' % str(e)
 	finally:
 		''' server shutdown	(^C)'''
 		cool_down()
 		#
-		end_server()
-		#
-		exit(0)
+		shutdown()

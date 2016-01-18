@@ -13,11 +13,11 @@ class haar_cascade():
         self.face_cascade = cv2.CascadeClassifier(path.join(cur_path, 'haarcascades', 'haarcascade_frontalface_default.xml'))
         #self.eye_cascade =cv2.CascadeClassifier(path.join(cur_path, 'haarcascades', 'haarcascade_eye.xml'))
 
-    def detect(self, img):
+    def process(self, img):
         img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         faces = self.face_cascade.detectMultiScale(img_gray, 1.3, 5)
         self.decorate(img, faces)
-        return (img, faces)
+        return (img, faces.tolist()[0] if len(faces) > 0 else [])
 
     def decorate(self, img, faces):
         def put_boxed_text(text, x, y, color):

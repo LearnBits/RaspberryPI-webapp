@@ -37,5 +37,6 @@ class LBApi:
 		ret = self.send_serial_request({'CMD': 'RESET'})
 		print 'RESET ok' if ret.has_key('RESP') else ('RESET error: %s' % str(ret))
 	#
+
 # initialization of global object
 pi = LBApi()

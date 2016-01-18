@@ -9,6 +9,7 @@ def webcam_frame_grabber(process):
   		while not process.done():
 			grabbed, frame = process.camera.read()
 			frame = cv2.resize(frame, process.frameResize)
+			frame = cv2.flip(frame, 1)
 			yield frame
 
   	return gen
@@ -16,7 +17,7 @@ def webcam_frame_grabber(process):
 
 def picamera_frame_grabber(process):
 
-	import picamera #, numpy
+	import picamera, cv2
 	from picamera.array import PiRGBArray
 
 	process.camera.resolution = (1296, 730) # (640, 480)
@@ -32,6 +33,7 @@ def picamera_frame_grabber(process):
 			if process.done(): break
 			rawCapture.truncate(0)
 			# grab the raw NumPy array representing the image, then place it in pool
-			yield frame.array
+			frame = cv2.flip(frame.array, 1)
+			yield frame
 
   	return gen

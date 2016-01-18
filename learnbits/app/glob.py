@@ -1,4 +1,5 @@
 import sys, re, platform
+from threading import Event
 
 
 def check_RPI():
@@ -28,8 +29,11 @@ class LBGlob:
         self.alive        = True
         self.start_uptime = 0
         self.is_OSX       = check_OSX()
-        self.is_RPI       = not check_OSX() and check_RPI()
-    
+        self.is_RPI       = not check_OSX() and check_RPI
+        self.turn_on_camera_osx = False
+        self.turn_off_camera_osx = False
+        self.osx_camera_notifier = Event()
+
     def check_supported_platform(self):
         if not self.is_RPI and not self.is_OSX:
             print '>>>>>>>>> Unsupported platform'

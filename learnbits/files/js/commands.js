@@ -8,7 +8,8 @@ function toggleCamera() {
 
 function start_camera() {
   console.log('start_camera');
-  $.get('/start_camera').done(function (msg) {
+  var compvision = $('#compvision option:selected').text().toLowerCase();
+  $.get(`/start_camera?processor=${compvision}`).done(function (msg) {
 		if(msg == 'OK' ) {
       $('#video-stream-img').attr('src', '/camera_stream');
       $('#camera-button').text('Stop');
