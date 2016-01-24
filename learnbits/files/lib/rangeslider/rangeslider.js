@@ -482,3 +482,26 @@
     };
 
 }));
+
+// Note: these functions are used when creating the slidres
+// TBD - incorporate as part of the library
+var rangeSliderDefaultOptions = {
+  polyfill: false,
+  onInit: function () {
+    // Note this is the original library function. Works only for onInit (not sure how)
+    var $handle = $('.rangeslider__handle', this.$range);
+    $handle[0].textContent = this.value;
+  }
+}
+var rangeSliderOnInputHandler = function () {
+  /**
+   * AAAAAAARRRRRRRRGGGGGGGGHHHHHHHH !!!!!
+   * This function was AWEFULLY buggy [when 2 sliders were used only it would only update the first one]
+   * Here's the fix:
+      - in the library rangslider.js I added an id to the slider value element
+      - note that in this function 'this' points to the original range input DOM element
+      - therefore I retrieve the slider value element by ID and updates its Value
+   **/
+  slider_val_id = $(this).attr('id') + '-val';
+  $('#' + slider_val_id).text(this.value);
+}

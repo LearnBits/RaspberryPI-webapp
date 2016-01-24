@@ -17,6 +17,7 @@ class haar_cascade():
         img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         faces = self.face_cascade.detectMultiScale(img_gray, 1.3, 5)
         self.decorate(img, faces)
+        # faces is of type np.ndarray
         return (img, faces.tolist()[0] if len(faces) > 0 else [])
 
     def decorate(self, img, faces):

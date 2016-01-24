@@ -21,3 +21,7 @@
 	width:300px;
 	height:150px;
 }
+
+#sensors-table .zoom-button {
+  cursor: pointer;
+}

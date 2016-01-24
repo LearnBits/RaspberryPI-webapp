@@ -1,6 +1,7 @@
 #from imutils.video.videostream import VideoStream
 from compvision.lb_face_detector import haar_cascade
 from compvision.lb_object_tracker import color_tracker
+#from compvision.lb_digits_classifier import svm_digits_classifier
 from compvision.video_inputs.frame_grabber import *
 from compvision.jpeg import *
 from threading import Thread, Event, Timer
@@ -25,6 +26,7 @@ class LBComputerVision:
 		self.camera = None
 		self.face_detector = LBComputerVision.CVProcessor(haar_cascade(), 'FACE_DETECTION')
 		self.ball_tracker = LBComputerVision.CVProcessor(color_tracker(), 'BALL_TRACKING')
+		self.digits_classifier = None #LBComputerVision.CVProcessor(svm_digits_classifier(), 'DIGITS_CLASSIFIER')
 		self.processor = None
 		self.frameResize = (324, 182)
 		self.decorate = True
@@ -90,10 +92,10 @@ class LBComputerVision:
 	def set_processor(self, option):
 		if option == 'face detection':
 			self.processor = self.face_detector
-		elif option == 'ball detection':
+		elif option == 'ball tracking':
 			self.processor = self.ball_tracker
 		elif option == 'digits recognition':
-			self.processor = self.face_detector
+			self.processor = self.digits_classifier
 		else:
 			self.processor = self.face_detector
 

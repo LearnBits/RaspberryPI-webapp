@@ -43,14 +43,16 @@ function initCameraControls() {
   $('#video-stream-img').attr('src', app.defaultImage);
 }
 
+// Motors
 function initMotorControls() {
-  // Buttons
+
   function motor_cmd(right, left) {
     $.get(`/motor?right=${right}&left=${left}`).done(function (msg) {
       console.log(msg);
     });
   }
 
+  // Buttons
   $('#go-motor-button').click( function() {
     right = Math.round(parseInt($('#right-motor-val').text()) * 255 / 10);
     left  = Math.round(parseInt($('#left-motor-val').text())  * 255 / 10);
@@ -61,42 +63,27 @@ function initMotorControls() {
     motor_cmd(0,0);
   });
 
-  // Sliders
-  $('input[type="range"]').rangeslider({
-      polyfill: false,
-      onInit: function () {
-        // Note this is the original function. Works only for Init (not sure how)
-        var $handle = $('.rangeslider__handle', this.$range);
-        $handle[0].textContent = this.value;
-      }
-  })
-  .on('input', function () {
-    /**
-     * AAAAAAARRRRRRRRGGGGGGGGHHHHHHHH !!!!!
-     * This function was AWEFULLY buggy [when 2 sliders were used only it would only update the first one]
-     * Here's the fix:
-        - in the library rangslider.js I added an id to the slider value element
-        - note that in this function 'this' points to the original range input DOM element
-        - therefore I retrieve the slider value element by ID and updates its Value
-     **/
-    slider_val_id = $(this).attr('id') + '-val';
-    $('#' + slider_val_id).text(this.value);
-  });
+  // Range sliders
+  $('input[type="range"]')
+    .rangeslider( rangeSliderDefaultOptions )
+    .on('input', rangeSliderOnInputHandler);
 }
 
+// LED BAR 8
 function initLedBarControls() {
 
   // Color Picker
   function TagConvertor(chaine, TagList, joker) {
-    var _mask = (joker == undefined)? "#":joker;
-    for (var val in TagList) chaine = chaine.replace(new RegExp(_mask+val+_mask, "g"), TagList[val]);
+    var _mask = (joker == undefined)? "#" : joker;
+    for (var val in TagList)
+      chaine = chaine.replace(new RegExp(_mask+val+_mask, "g"), TagList[val]);
     return chaine;
   }
 
   function BuildPalette(contentTemplateLine, contentTemplate) { //méthode construisant la palette
     var content = ""
     for (i = 0; i < SMALL_COLOR_PALETTE.length; i++) {
-        content += TagConvertor(contentTemplateLine,{"color":SMALL_COLOR_PALETTE[i]});
+        content += TagConvertor(contentTemplateLine, {"color" : SMALL_COLOR_PALETTE[i]});
     }
     //Warning : tag starts and ends with #
     content = contentTemplate.replace("#contentLineTemplate#",content);

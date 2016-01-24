@@ -31,6 +31,7 @@ def picamera_frame_grabber(process):
 		for frame in process.camera.capture_continuous(rawCapture, format='bgr', resize=imageResize, use_video_port=True):
 			# clear the stream in preparation for the next frame
 			if process.done(): break
+			# empty the PiRGBArray for the next iteration
 			rawCapture.truncate(0)
 			# grab the raw NumPy array representing the image, then place it in pool
 			frame = cv2.flip(frame.array, 1)

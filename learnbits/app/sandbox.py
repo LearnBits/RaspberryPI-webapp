@@ -2,6 +2,7 @@ from __future__ import with_statement
 from threading  import Thread, Event, RLock
 from time       import sleep
 from glob		import g
+from api		import pi
 import json, event_handlers
 
 class LBSamplingEvent:
@@ -23,7 +24,6 @@ class LBSamplingEvent:
 class LBSandbox:
 	#
 	def __init__(self):
-		self.program = ''
 		self.pid = 0 # the current running program
 		self.running = {0: False}
 		self.event = LBSamplingEvent()
@@ -47,23 +47,21 @@ class LBSandbox:
 		# to make sure that only one program runs at a given time
 		with self.rlock:
 			self.stop_program()
-			self.program = program
 			self.pid += 1
-			self.running[self.pid] = False
-			Thread(target=self.run_program, args=(self.pid,)).start()
+			self.running[self.pid] = False # before starting new thread
+			Thread(target=self.run_program, args=(self.pid, program,)).start()
 			wait_for_new_program_thread()
 			print 'program %d confirmed' % self.pid
 	#
-	def run_program(self, prog_id):
+	def run_program(self, prog_id, program):
 		print 'program %d started' % prog_id
 		self.running[prog_id] = True
 		self.flush() # not sure if it's needed
-		bytecode = compile(self.program, '<string>', 'exec')
 		# main loop
-		self.forever_loop(prog_id, bytecode)
+		self.forever_loop(prog_id, program)
   	#
 
-	def forever_loop(self, __prog_id__, __bytecode__):
+	def forever_loop(self, __prog_id__, __program__):
 		'''
 			NOTE:
 			The following sections (#1, #2, #3)
@@ -74,7 +72,7 @@ class LBSandbox:
 		#	  - function definitions
 		#	  - variables
 		#	  - statements
-		exec(__bytecode__)
+		exec(__program__)
 
 		# 2 - add event listeners
 		event_handler = event_handlers.get_signatures()
@@ -103,7 +101,7 @@ class LBSandbox:
 				#
 				# Run event handler
 				__handler__ = event_handler[__event__['SAMPLE_ID']]
-				if __handler__.func is not None:
+				if __handler__.func is not do_nothing:
 					# __f__ and __p__ must be declared ** HERE **
 					# so the invoke_statement can be executed (see event_handlers.py)
 					__f__ = __handler__.func

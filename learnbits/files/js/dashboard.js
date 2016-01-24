@@ -12,8 +12,10 @@ function DashboardEntry(sigID, signal) {
 		`<tr><td><div class='label-div' id='label-${sigID}'>${signal.name}</div></td>` +
 		`<td><div class='gauge-div' id='gauge-${sigID}'></div></td>` +
 		//BUG in smoothie:  MUST provide width and height of the canvas
-		`<td><canvas class='graph-canvas' id='canvas-${sigID}' ` +
-		`width='400' height='150'></canvas></td></tr>`;
+		`<td><canvas class='graph-canvas' id='canvas-${sigID}' width='400' height='130'></canvas></td></tr>`;
+		/*+
+		`<td><button class='zoom-button' id='plus-zoom-button'>+</button><br>` +
+		`<button class='zoom-button' id='minus-zoom-button'>-</button></td></tr>`;*/
 	//console.log(sensorMarkup);
 	$('#sensors-table').append(sensorMarkup);
 	// Graph
