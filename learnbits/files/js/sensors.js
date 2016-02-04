@@ -121,7 +121,7 @@ var sensorPropsTable = {
 				return val == 0 ? 0 : Math.round(Math.sqrt(val[0]*val[0] + val[1]*val[1] + val[2]*val[2])/100);
 			},
 			//range: { min: 0, max: 57000 } // > 2^15 (32768) * sqrt(3) (1.732)
-			range: { min: 0, max: 650 } // > 2^15 (32768) * sqrt(3) (1.732)
+			range: { min: 0, max: 100 /*650*/ } // > 2^15 (32768) * sqrt(3) (1.732)
 		}, {
 			name: 'Gyroscope',
 			graphFunc: function(val) {
@@ -129,7 +129,7 @@ var sensorPropsTable = {
 				return val == 0 ? 0 : Math.round(Math.sqrt(val[3]*val[3] + val[4]*val[4] + val[5]*val[5])/100);
 			},
 			//range: { min: 0, max: 57000 }
-			range: { min: 0, max: 650 }
+			range: { min: 0, max: 100 /*650*/ }
 		} ]
 	},
 

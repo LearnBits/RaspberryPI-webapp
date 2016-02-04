@@ -122,7 +122,7 @@ class LBSerialPort:
 		while not self.i2c_scan_event.wait(timeout):
 			if self.is_open:
 				status = self.write({'CMD':'SCAN'})
-				debug('scanning I2C bus every %d sec' % timeout)
+				#debug('scanning I2C bus every %d sec' % timeout)
 		#
 		print 'I2C scan thread ... done'
 

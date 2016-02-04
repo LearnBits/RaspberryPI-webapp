@@ -1,3 +1,133 @@
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# IMU sensor lab
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+
+A_T_1 = 2300.0
+A_T_2 = 2400.0
+G_T_1 = 85.0
+G_T_2 = 90.0
+
+AA = []
+AG = []
+collisions = 1
+
+def imu(ax,ay,az,gx,gy,gz):
+    global A_T_1, A_T_2, G_T_1, G_T_2, AA, AG, collisions
+    aa = math.sqrt(ax*ax + ay*ay + az*az)
+    ag = math.sqrt(gx*gx + gy*gy + gz*gz)
+    if aa > A_T_2:   print '%03d ACCE=%f, ax=%d, ay=%d, az=%d' % (collisions, aa, ax, ay, az)
+    elif aa > A_T_1: print '%03d acce=%f, ax=%d, ay=%d, az=%d' % (collisions, aa, ax, ay, az)
+    if ag > G_T_2:   print '%03d GYRO=%f, gx=%d, gy=%d, gz=%d' % (collisions, ag, gx, gy, gz)
+    elif ag > G_T_1: print '%03d gyro=%f, gx=%d, gy=%d, gz=%d' % (collisions, ag, gx, gy, gz)
+    if aa > A_T_1 or ag > G_T_1:
+        AA.append(aa)
+        AG.append(ag)
+        collisions += 1
+        if len(AA) > 0 and len(AA) % 10 == 0:
+            print
+            print 'Acce: avg=%f, std=%f, min=%f, max=%f' % (np.mean(AA), np.std(AA), np.min(AA), np.max(AA))
+            print 'Gyro: avg=%f, std=%f, min=%f, max=%f' % (np.mean(AG), np.std(AG), np.min(AG), np.max(AG))
+            print
+            del AA[:]
+            del AG[:]
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+
+A_T_1 = 2300.0
+A_T_2 = 2400.0
+G_T_1 = 85.0
+G_T_2 = 90.0
+
+collisions = 1
+colors = [[1]*8, [64]*8, [101]*8]
+ticks = 0
+lights_off = 0
+
+def imu(ax,ay,az,gx,gy,gz):
+    global A_T_1, A_T_2, G_T_1, G_T_2, collisions, colors, lights_off, ticks
+    ticks += 1
+    aa = math.sqrt(ax*ax + ay*ay + az*az)
+    ag = math.sqrt(gx*gx + gy*gy + gz*gz)
+    if aa > A_T_1 or ag > G_T_1:
+        pi.led_bar8(colors[collisions % len(colors)])
+        collisions += 1
+        lights_off = ticks + 20;
+    if ticks == lights_off:
+        pi.led_bar8_off()
+        lights_off = 0
+
+
+
+A_T_1 = 2300.0
+A_T_2 = 2400.0
+
+G_T_1 = 85.0
+G_T_2 = 90.0
+
+def imu(ax,ay,az,gx,gy,gz):
+    global A_T_1, A_T_2, G_T_1, G_T_2
+    AA = math.sqrt(ax*ax + ay*ay + az*az)
+    AG = math.sqrt(gx*gx + gy*gy + gz*gz)
+    if AA > A_T_1 or  AG > G_T_1: print 'small collision : Acce=%f, Gyro=%f' % (AA, AG)
+    if AA > A_T_1 and AG > G_T_1: print 'medium collision: Acce=%f, Gyro=%f' % (AA, AG)
+    if AA > A_T_2 or  AG > G_T_2: print 'BIG COLLISION   : Acce=%f, Gyro=%f' % (AA, AG)
+
+A_T_1 = 2300.0
+A_T_2 = 2400.0
+
+G_T_1 = 85.0
+G_T_2 = 90.0
+
+def imu(ax,ay,az,gx,gy,gz):
+    global A_T_1, A_T_2, G_T_1, G_T_2
+    AA = math.sqrt(ax*ax + ay*ay + az*az)
+    AG = math.sqrt(gx*gx + gy*gy + gz*gz)
+    if AA > A_T_2: print 'ACCE=%f' % AA
+    elif AA > A_T_1: print 'acce=%f' % AA
+    if AG > G_T_2: print 'GYRO=%f' % AG
+    elif AG > G_T_1: print 'gyro=%f' % AG
+
+
+
+
+
+
+
+
+
+
+
+# statistical analysis
+imu_count = 0
+AA = []
+AG = []
+
+def imu(ax,ay,az,gx,gy,gz):
+    global AA, AG, imu_count
+    AA.append(math.sqrt(ax*ax + ay*ay + az*az))
+    AG.append(math.sqrt(gx*gx + gy*gy + gz*gz))
+    imu_count += 1
+    if imu_count % 100 == 0:
+        print 'Acce: avg=%f, std=%f, min=%f, max=%f' % (np.mean(AA), np.std(AA), np.min(AA), np.max(AA))
+        print 'Gyro: avg=%f, std=%f, min=%f, max=%f' % (np.mean(AG), np.std(AG), np.min(AG), np.max(AG))
+        print
+
+
+
+
+
+
+#imu_count = 55
+
+def init():
+    imu_count = 0
+
+
+def imu(ax,ay,az,gx,gy,gz):
+    global imu_count
+    imu_count += 1
+    if imu_count % 10 == 0: print imu_count
+
+
 px = py = 0
 d = 3
 ew = ns = ''

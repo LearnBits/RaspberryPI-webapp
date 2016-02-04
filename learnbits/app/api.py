@@ -27,6 +27,9 @@ class LBApi:
 			raise ValueError('LED CMD: must provide exactly 8 LED values %s' % str(led_values))
 		led_values = map(lambda x: int(x) if int(x) < 139 else 0, led_values)
 		return self.send_serial_request({'CMD':'LED','SET': led_values})
+
+	def led_bar8_off(self):
+		return self.led_bar8([130,130,130,130,130,130,130,130])
 	#
 	def motor(self, right, left):
 		right = min( max(right, -255), 255)

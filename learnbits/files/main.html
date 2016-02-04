@@ -170,28 +170,7 @@
 
 
 <!-- Default Python program -->
-<script type="python code" id="init_program">
-if __event__['SAMPLE_ID'] == 'CAMERA':
-    val = __event__['VAL'][0]
-    d = 3
-    #print val
-    #x=val[0], y=val[1], w=val[2], h=val[3]
-    if r1:
-        if r1-val[0] > d:
-            print 'RIGHT'
-        elif val[0]-r1 > d:
-            print 'LEFT'
-    if r2:
-        if r2-val[1] > d:
-            print 'UP'
-        elif val[1]-r2 > d:
-            print 'DOWN'
-    r1 = val[0]
-    r2 = val[1]
-
-#print '@@@@@ from user program @@@@@'
-#print json.dumps(__event__)
-#print '@@@@@'
+<script type='python code' id='init_program'>
 </script>
 
 </body>
